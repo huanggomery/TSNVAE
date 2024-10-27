@@ -110,7 +110,8 @@ class TargetModel(dist.Normal):
             nn.Linear(16, output_dim),
             nn.Softplus()
         )
-    
+
+    # 输入为 (B, INPUT_DIM) 的向量
     def forward(self, z: torch.Tensor) -> dict:
         loc = self.loc(z)
         scale = self.scale(z)
