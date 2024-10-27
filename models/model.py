@@ -11,7 +11,7 @@ from pixyz import distributions as dist
 import torch
 from torch import nn
 
-from distributions import VisualEncoder, TactileEncoder, VisualDecoder, TactileDecoder, Velocity, Transition, TargetModel
+from models.distributions import VisualEncoder, TactileEncoder, VisualDecoder, TactileDecoder, Velocity, Transition, TargetModel
 
 from config import GlobalConfig
 
@@ -97,6 +97,36 @@ class TsNewtonianVAE(Model):
 
         return loss.item()
 
+    # 输入视觉图像I_t，计算隐藏层x_t
+    # 输入: torch.Tensor (B, C, H, W) 或 (C, H, W)
+    # 输出: torch.Tensor (B, X_DIM) 或 (X_DIM)
+    def get_latent(self, I_t: torch.Tensor):
+        is_batch = I_t.dim() == 4
+        if not is_batch:
+            I_t = I_t.unsqueeze(0)
+        with torch.no_grad():
+            x_t = self.v_encoder(I_t)["loc"]
+
+        if not is_batch:
+            x_t = x_t.squeeze()
+        
+        return x_t
+
+    # 输入触觉图像I_z，计算隐藏层的目标x_g
+    # 输入: torch.Tensor (B, C, H, W) 或 (C, H, W)
+    # 输出: torch.Tensor (B, X_DIM) 或 (X_DIM)
+    def get_target_latent(self, I_z: torch.Tensor):
+        is_batch = I_z.dim() == 4
+        if not is_batch:
+            I_z = I_z.unsqueeze(0)
+        with torch.no_grad():
+            x_g = self.v_encoder(I_z)["loc"]
+
+        if not is_batch:
+            x_g = x_g.squeeze()
+        
+        return x_g
+
     def save(self, path, filename):
         os.makedirs(path, exist_ok=True)
 
@@ -111,9 +141,4 @@ class TsNewtonianVAE(Model):
             f"{path}/{filename}", map_location=torch.device('cpu'))['distributions'])
 
 if __name__ == "__main__":
-    encoder = TactileEncoder(6)
-    decoder = TactileDecoder(6, 3, 64, device="cpu")
-    t_recon_loss = E(encoder, LogProb(decoder))
-    I_z = torch.zeros((32, 3, 64, 64))
-    loss = t_recon_loss({"I_z": I_z})
-    print(loss)
+    pass
