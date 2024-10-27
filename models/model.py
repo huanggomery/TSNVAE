@@ -23,7 +23,6 @@ class TsNewtonianVAE(Model):
                  v_decoder_param: dict,
                  t_encoder_param: dict,
                  t_decoder_param: dict,
-                 velocity_param: dict,
                  target_param: dict,
                  delta_time: float,
                  device: str = "cpu"
@@ -33,7 +32,7 @@ class TsNewtonianVAE(Model):
         self.v_decoder = VisualDecoder(**v_decoder_param).to(device)
         self.t_decoder = TactileDecoder(**t_decoder_param).to(device)
         self.transition = Transition(delta_time=delta_time).to(device)
-        self.velocity = Velocity(**velocity_param).to(device)
+        self.velocity = Velocity().to(device)
         self.target_model = TargetModel(**target_param).to(device)
         self.norm_g = dist.Normal(loc=0, scale=sigma_g, var=["x_t"])
 
