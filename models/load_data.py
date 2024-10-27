@@ -41,13 +41,15 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 import cv2
 
+from config import GlobalConfig
+
 
 # 图片处理尺寸
-VISUAL_SIZE = 224
-TACTILE_SIZE = 64
+VISUAL_SIZE = GlobalConfig.visual_size
+TACTILE_SIZE = GlobalConfig.tactile_size
 
 # 数据根目录
-DATA_ROOT = workspace_path + "/data"
+DATA_ROOT = workspace_path + GlobalConfig.data_root
 
 class NVAEDataset(Dataset):
     def __init__(self, mode: str = "train", device: str = "cpu"):

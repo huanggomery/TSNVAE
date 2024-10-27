@@ -1,4 +1,8 @@
 import os
+import sys
+current_file_path = os.path.dirname(__file__)  # 当前文件所在文件夹路径
+workspace_path = os.path.abspath(os.path.join(current_file_path, ".."))
+sys.path.append(workspace_path)
 
 from pixyz.models import Model
 from pixyz.losses import Parameter, LogProb, KullbackLeibler as KL, Expectation as E
@@ -9,7 +13,9 @@ from torch import nn
 
 from distributions import VisualEncoder, TactileEncoder, VisualDecoder, TactileDecoder, Velocity, Transition, TargetModel
 
-sigma_g = 0.0015   # 抓取误差为 1.5mm
+from config import GlobalConfig
+
+sigma_g = GlobalConfig.grasp_error   # 抓取误差
 
 class TsNewtonianVAE(Model):
     def __init__(self,

@@ -1,5 +1,11 @@
 # NVAE用到的模型，encoder, decoder, transition, velocity
 
+import os
+import sys
+current_file_path = os.path.dirname(__file__)  # 当前文件所在文件夹路径
+workspace_path = os.path.abspath(os.path.join(current_file_path, ".."))
+sys.path.append(workspace_path)
+
 import torch
 from torch import nn
 import torchvision
@@ -8,8 +14,10 @@ import numpy as np
 from pixyz import distributions as dist
 from pixyz.utils import epsilon
 
+from config import GlobalConfig
 
-sigma = 0.0001   # 机器人的重复定位精度为 0.1mm
+
+sigma = GlobalConfig.position_accuracy   # 机器人的重复定位精度
 
 
 # 利用ResNet18将视觉图片编码为向量，I_t -> x_t
