@@ -75,7 +75,7 @@ class NVAEDataset(Dataset):
 
             # 加载动作
             action = np.load(path + "/action.npy")
-            action_tensor = torch.from_numpy(action).to(device=self.device)
+            action_tensor = torch.from_numpy(action).to(device=self.device, dtype=torch.float32)
             traj_dict["u"] = action_tensor
 
             # 加载插入状态的触觉图像
@@ -113,7 +113,7 @@ class NVAEDataset(Dataset):
 
 def get_loader(mode: str = "train", device: str = "cpu"):
     data_set = NVAEDataset(mode=mode, device=device)
-    return DataLoader(dataset=data_set, batch_size=4, shuffle=True)
+    return DataLoader(dataset=data_set, batch_size=8, shuffle=True)
 
 if __name__ == "__main__":
     dataloader = get_loader("train")

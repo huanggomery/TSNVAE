@@ -34,7 +34,7 @@ class TsNewtonianVAE(Model):
         self.transition = Transition(delta_time=delta_time).to(device)
         self.velocity = Velocity().to(device)
         self.target_model = TargetModel(**target_param).to(device)
-        self.norm_g = dist.Normal(loc=0, scale=sigma_g, var=["x_t"])
+        self.norm_g = dist.Normal(loc=0, scale=sigma_g, var=["x_t"]).to(device)
 
         self.distributions = nn.ModuleList(
             [self.v_encoder, self.v_decoder, self.t_encoder, self.t_decoder, self.transition, self.target_model]
@@ -48,7 +48,7 @@ class TsNewtonianVAE(Model):
         self.t_recon_loss = -E(self.t_encoder, LogProb(self.t_decoder)).mean()
         self.vt_recon_loss = -E(self.target_model, LogProb(self.v_decoder)).mean()
         self.vt_KL_loss = KL(self.v_encoder, self.target_model).mean()
-        self.add_KL_loss = KL(self.v_encoder, self.norm_g) + KL(self.target_model, self.norm_g).mean()
+        self.add_KL_loss = KL(self.v_encoder, self.norm_g).mean() + KL(self.target_model, self.norm_g).mean()
 
         self.delta_time = delta_time
 
@@ -56,9 +56,9 @@ class TsNewtonianVAE(Model):
     def calculate_loss(self, input_var_dict: dict):
         I = input_var_dict["I"]
         I_z = input_var_dict["I_z"]
-        z = self.t_encoder.sample({"I_z"}, reparam=True)["z"]
+        z = self.t_encoder.sample({"I_z": I_z}, reparam=True)["z"]
         u = input_var_dict["u"]
-        beta = input_var_dict["beta"]
+        # beta = input_var_dict["beta"]
 
         total_loss = 0.
 
