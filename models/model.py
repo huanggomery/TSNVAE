@@ -66,7 +66,7 @@ class TsNewtonianVAE(Model):
 
         x_t0 = self.v_encoder.sample({"I_t": I[0]}, reparam=True)["x_t"]
 
-        for step in range(1, T-1):
+        for step in range(1, T):
             x_t = self.v_encoder.sample({"I_t": I[step]}, reparam=True)["x_t"]
             v_t = (x_t - x_t0) / self.delta_time
             v_t1 = self.velocity(x_t, v_t, u[step])["v_t"]
