@@ -133,40 +133,39 @@ class VisualDecoder(dist.Normal):
     def __init__(self, input_dim: int, output_dim: int, img_size: int, device: str):
         super().__init__(var=["I_t"], cond_var=["x_t"])
 
-        self.loc = nn.Sequential(
-            nn.Conv2d(input_dim+2, 64, 3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(64, output_dim, 3, stride=1, padding=1),
-            nn.Tanh()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, 16),
+            nn.LeakyReLU(),
+            nn.Linear(16, 16),
+            nn.LeakyReLU(),
+            nn.Linear(16, 1000),
+            nn.LeakyReLU(),
+            nn.Linear(1000, 512*7*7),
         )
 
-        self.image_size = img_size
-        a = np.linspace(-1, 1, self.image_size)
-        b = np.linspace(-1, 1, self.image_size)
-        x, y = np.meshgrid(a, b)
-        x = x.reshape(self.image_size, self.image_size, 1)
-        y = y.reshape(self.image_size, self.image_size, 1)
-        self.xy = np.concatenate((x, y), axis=-1)
+        hiddens = [512, 256, 128, 64, 32]
+        modules = []
+        for i in range(len(hiddens)-1):
+            modules.append(
+                nn.Sequential(
+                    nn.ConvTranspose2d(hiddens[i], hiddens[i+1], kernel_size=4, stride=2, padding=1),
+                    nn.BatchNorm2d(hiddens[i+1]),
+                    nn.ReLU()
+                )
+            )
+        modules.append(
+            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1)
+        )
+        self.decoder = nn.Sequential(*modules)
 
         self.input_dim = input_dim
         self.device = device
 
     # 输入为(B, INPUT_DIM) 的向量
     def forward(self, x_t: torch.Tensor) -> dict:
-        batchsize = len(x_t)
-        xy_tiled = torch.from_numpy(
-            np.tile(self.xy, (batchsize, 1, 1, 1)).astype(np.float32)).to(self.device)
-
-        z_tiled = torch.repeat_interleave(
-            x_t, self.image_size*self.image_size, dim=0)
-        z_tiled = z_tiled.view(batchsize, self.image_size, self.image_size, self.input_dim)
-
-        z_and_xy = torch.cat((z_tiled, xy_tiled), dim=3)
-        z_and_xy = z_and_xy.permute(0, 3, 2, 1)
-
-        loc = self.loc(z_and_xy)/2.
+        x_t = self.fc(x_t)
+        x_t = x_t.view(-1, 512, 7, 7)  # 重塑为(批量大小, 512, 7, 7)
+        loc = self.decoder(x_t)
 
         return {"loc": loc, "scale": 0.01}
 
@@ -240,22 +239,18 @@ class Velocity(dist.Deterministic):
         return {"v_t": u_t0}
 
 if __name__ == "__main__":
-    # encoder = VisualEncoder(6)
-    # decoder = VisualDecoder(6, 3, 224, "cpu")
+    encoder = VisualEncoder(6)
+    decoder = VisualDecoder(6, 3, 224, "cpu")
 
-    # I_t = torch.zeros((32, 3, 224, 224))
-    # x_t = encoder(I_t)
-    # I_t_1 = decoder(x_t['loc'])
+    I_t = torch.zeros((32, 3, 224, 224))
+    x_t = encoder(I_t)
+    I_t_1 = decoder(x_t['loc'])
 
-    # print(I_t.shape)
-    # print(x_t['loc'].shape)
-    # print(I_t_1['loc'].shape)
+    print(I_t.shape)
+    print(x_t['loc'].shape)
+    print(I_t_1['loc'].shape)
 
     # encoder = TactileEncoder(6)
     # I_z = torch.zeros((32, 3, 224, 224))
     # z = encoder(I_z)
     # print(z["loc"].shape)
-
-    trans = Transition(0.01)
-    d = trans.sample({"x_t0": torch.zeros((1, 2)), "v_t": torch.zeros((1, 1))})
-    print(d)
