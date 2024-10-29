@@ -21,9 +21,9 @@ hole_position = (0.5, 0, 0)
 save_dir = workspace_path + GlobalConfig.data_root
 
 # 随机运动相关参数
-xy_std = 0.001            # 随机运动标准差
-restoring_force = 0.1     # 恢复力系数
-max_action_limit = 0.003  # 最大动作限制
+xy_std = 0.003            # 随机运动标准差
+restoring_force = 0.2     # 恢复力系数
+max_action_limit = 0.01  # 最大动作限制
 
 
 def save_visual(env, step, dir):
