@@ -35,4 +35,4 @@ if __name__ == "__main__":
 
     train(model, 500)
 
-    model.save(GlobalConfig.save_root, "model.pth")
+    model.save("."+GlobalConfig.save_root, "model.pth")

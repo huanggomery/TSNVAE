@@ -27,6 +27,7 @@ class TsNewtonianVAE(Model):
                  delta_time: float,
                  device: str = "cpu"
         ):
+        self.device = device
         self.v_encoder = VisualEncoder(**v_encoder_param).to(device)
         self.t_encoder = TactileEncoder(**t_encoder_param).to(device)
         self.v_decoder = VisualDecoder(**v_decoder_param).to(device)
