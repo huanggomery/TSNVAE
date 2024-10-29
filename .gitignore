@@ -3,6 +3,8 @@ asset/
 
 # data
 data/
+eval/v_recon
+eval/t_recon
 
 # pycache
 **/__pycache__/

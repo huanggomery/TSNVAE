@@ -1,4 +1,4 @@
-# 检验视觉图片重建效果
+# 检验触觉图片重建效果
 
 import os
 import sys
@@ -16,36 +16,35 @@ from models.load_data import NVAEDataset
 import config
 from config import GlobalConfig
 
-save_root = current_file_path + "/v_recon"
+save_root = current_file_path + "/t_recon"
+
 i = 0
 
 def save_pic(img_origin, img_recon):
     global i
-    for step in range(img_origin.shape[0]):
-        img0 = img_origin[step] * 255
-        img0 = img0.permute(1,2,0).to(torch.uint8)
-        img0 = img0.cpu().numpy()
-        img = Image.fromarray(img0)
-        img.save("{}/origin/{}.jpg".format(save_root, i))
 
-        img1 = img_recon[step] * 255
-        img1 = img1.permute(1,2,0).to(torch.uint8)
-        img1 = img1.cpu().numpy()
-        img = Image.fromarray(img1)
-        img.save("{}/recon/{}.jpg".format(save_root, i))
+    img0 = img_origin * 255
+    img0 = img0.permute(1,2,0).to(torch.uint8)
+    img0 = img0.cpu().numpy()
+    img = Image.fromarray(img0)
+    img.save("{}/origin/{}.jpg".format(save_root, i))
 
-        i += 1
+    img1 = img_recon * 255
+    img1 = img1.permute(1,2,0).to(torch.uint8)
+    img1 = img1.cpu().numpy()
+    img = Image.fromarray(img1)
+    img.save("{}/recon/{}.jpg".format(save_root, i))
+
+    i += 1
 
 def recon(model):
     dataset = NVAEDataset("train", GlobalConfig.device)
 
-    for I, _, _ in dataset:
-        # I : torch.Tensor (steps, C, H, W)
-        x = model.get_latent(I)    # (steps, DIM)
-        I_pred = model.v_decoder(x)["loc"]   # (steps, C, H, W)
-
-        save_pic(I, I_pred)
-
+    for _, I_z, _ in dataset:
+        # I_z : torch.Tensor (C, H, W)
+        z = model.t_encoder(I_z.unsqueeze(0))["loc"]  # (1, DIM)
+        I_z_recon = model.t_decoder(z)["loc"][0]   # (C, H, W)
+        save_pic(I_z, I_z_recon)
 
 if __name__ == "__main__":
     model = TsNewtonianVAE(

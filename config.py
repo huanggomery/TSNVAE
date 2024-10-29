@@ -3,7 +3,7 @@
 # 禁止直接使用该类
 class __GlobalConfig:
     def __init__(self):
-        self.device = "cpu"               # 训练设备
+        self.device = "cuda"               # 训练设备
         self.latent_dim = 2               # 隐藏层的长度
         self.z_dim = 128                  # 触觉向量的长度
         self.delta_time = 0.5             # 控制和采样的间隔时间，s
