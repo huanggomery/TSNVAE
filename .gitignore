@@ -1,0 +1,11 @@
+# asset
+asset/
+
+# data
+data/
+
+# pycache
+**/__pycache__/
+
+# saved models
+save/
