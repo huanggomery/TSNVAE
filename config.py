@@ -24,8 +24,6 @@ v_encoder_param = {
 v_decoder_param = {
     "input_dim": GlobalConfig.latent_dim,
     "output_dim": 3,
-    "img_size": GlobalConfig.visual_size,
-    "device": GlobalConfig.device,
 }
 
 t_encoder_param = {
@@ -35,8 +33,6 @@ t_encoder_param = {
 t_decoder_param = {
     "input_dim": GlobalConfig.z_dim,
     "output_dim": 3,
-    "img_size": GlobalConfig.tactile_size,
-    "device": GlobalConfig.device,
 }
 
 target_param = {

@@ -128,9 +128,10 @@ class TargetModel(dist.Normal):
 
 
 # 将视觉向量恢复成视觉图片， x_t -> I_t
+# TODO: 硬编码，只能恢复成 224*224的图片
 class VisualDecoder(dist.Normal):
     # input_dim：特征向量的维度，output_dim：图片的Channel数
-    def __init__(self, input_dim: int, output_dim: int, img_size: int, device: str):
+    def __init__(self, input_dim: int, output_dim: int):
         super().__init__(var=["I_t"], cond_var=["x_t"])
 
         self.fc = nn.Sequential(
@@ -154,12 +155,12 @@ class VisualDecoder(dist.Normal):
                 )
             )
         modules.append(
-            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1)
+            nn.Sequential(
+                nn.ConvTranspose2d(32, output_dim, kernel_size=4, stride=2, padding=1),
+                nn.Sigmoid()
+            )
         )
         self.decoder = nn.Sequential(*modules)
-
-        self.input_dim = input_dim
-        self.device = device
 
     # 输入为(B, INPUT_DIM) 的向量
     def forward(self, x_t: torch.Tensor) -> dict:
@@ -173,43 +174,39 @@ class VisualDecoder(dist.Normal):
 # 将触觉向量恢复成触觉图片， z -> I_z
 class TactileDecoder(dist.Normal):
     # input_dim：特征向量的维度，output_dim：图片的Channel数
-    def __init__(self, input_dim: int, output_dim: int, img_size: int, device: str):
+    def __init__(self, input_dim: int, output_dim: int):
         super().__init__(var=["I_z"], cond_var=["z"])
 
-        self.loc = nn.Sequential(
-            nn.Conv2d(input_dim+2, 64, 3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(64, output_dim, 3, stride=1, padding=1),
-            nn.Tanh()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.LeakyReLU(),
+            nn.Linear(256, 256*2*2),
+            nn.LeakyReLU(),
         )
 
-        self.image_size = img_size
-        a = np.linspace(-1, 1, self.image_size)
-        b = np.linspace(-1, 1, self.image_size)
-        x, y = np.meshgrid(a, b)
-        x = x.reshape(self.image_size, self.image_size, 1)
-        y = y.reshape(self.image_size, self.image_size, 1)
-        self.xy = np.concatenate((x, y), axis=-1)
-
-        self.input_dim = input_dim
-        self.device = device
+        hiddens = [256, 128, 64, 32, 16]
+        modules = []
+        for i in range(len(hiddens)-1):
+            modules.append(
+                nn.Sequential(
+                    nn.ConvTranspose2d(hiddens[i], hiddens[i+1], kernel_size=4, stride=2, padding=1),
+                    nn.BatchNorm2d(hiddens[i+1]),
+                    nn.ReLU()
+                )
+            )
+        modules.append(
+            nn.Sequential(
+                nn.ConvTranspose2d(16, output_dim, kernel_size=4, stride=2, padding=1),
+                nn.Sigmoid()
+            )
+        )
+        self.decoder = nn.Sequential(*modules)
 
     # 输入为(B, INPUT_DIM) 的向量
     def forward(self, z: torch.Tensor) -> dict:
-        batchsize = len(z)
-        xy_tiled = torch.from_numpy(
-            np.tile(self.xy, (batchsize, 1, 1, 1)).astype(np.float32)).to(self.device)
-
-        z_tiled = torch.repeat_interleave(
-            z, self.image_size*self.image_size, dim=0)
-        z_tiled = z_tiled.view(batchsize, self.image_size, self.image_size, self.input_dim)
-
-        z_and_xy = torch.cat((z_tiled, xy_tiled), dim=3)
-        z_and_xy = z_and_xy.permute(0, 3, 2, 1)
-
-        loc = self.loc(z_and_xy)/2.
+        z = self.fc(z)
+        z = z.view(-1, 256, 2, 2)  # 重塑为(批量大小, 256, 2, 2)
+        loc = self.decoder(z)
 
         return {"loc": loc, "scale": 0.01}
 
@@ -240,7 +237,7 @@ class Velocity(dist.Deterministic):
 
 if __name__ == "__main__":
     encoder = VisualEncoder(6)
-    decoder = VisualDecoder(6, 3, 224, "cpu")
+    decoder = VisualDecoder(6, 3)
 
     I_t = torch.zeros((32, 3, 224, 224))
     x_t = encoder(I_t)
@@ -250,7 +247,11 @@ if __name__ == "__main__":
     print(x_t['loc'].shape)
     print(I_t_1['loc'].shape)
 
-    # encoder = TactileEncoder(6)
-    # I_z = torch.zeros((32, 3, 224, 224))
-    # z = encoder(I_z)
-    # print(z["loc"].shape)
+
+    # encoder = TactileEncoder(128)
+    # decoder = TactileDecoder(128, 3)
+    # I_z = torch.zeros((32, 3, 64, 64))
+    # z = encoder(I_z)["loc"]
+    # print(z.shape)
+    # I_z1 = decoder(z)["loc"]
+    # print(I_z1.shape)
