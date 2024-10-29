@@ -96,7 +96,7 @@ def collect_trajectory(env, traj_id, saved):
 
         if saved:
             # t时刻的动作
-            actions = np.concatenate((actions, a.reshape((1,2))), axis=0)
+            actions = np.concatenate((actions, a.reshape((1,2)) / 0.5), axis=0)
             # t+1时刻的视觉和位置
             save_visual(env, step, dir)
             cur_pos = get_position(env) - mean_pos

@@ -33,6 +33,7 @@ if __name__ == "__main__":
         GlobalConfig.device
     )
 
-    train(model, 500)
+    model.load("."+GlobalConfig.save_root, "model.pth")
+    train(model, 200)
 
     model.save("."+GlobalConfig.save_root, "model.pth")

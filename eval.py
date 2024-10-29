@@ -44,6 +44,7 @@ def draw(x, x_target, pos):
     plt.title("latent scatter")
     plt.scatter(x[:, 0], x[:, 1], s=1, c=[0,0,1])
     plt.scatter(x_target[:, 0], x_target[:, 1], s=5, c=[1,0,0])
+    plt.axis("equal")
 
     plt.figure(1)
     plt.title("latent x - position x")
