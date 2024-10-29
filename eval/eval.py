@@ -3,7 +3,8 @@
 import os
 import sys
 current_file_path = os.path.dirname(__file__)  # 当前文件所在文件夹路径
-workspace_path = current_file_path
+workspace_path = os.path.abspath(os.path.join(current_file_path, ".."))
+sys.path.append(workspace_path)
 
 import torch
 import numpy as np
@@ -43,7 +44,7 @@ def draw(x, x_target, pos):
     plt.figure(0)
     plt.title("latent scatter")
     plt.scatter(x[:, 0], x[:, 1], s=1, c=[0,0,1])
-    plt.scatter(x_target[:, 0], x_target[:, 1], s=5, c=[1,0,0])
+    # plt.scatter(x_target[:, 0], x_target[:, 1], s=5, c=[1,0,0])
     plt.axis("equal")
 
     plt.figure(1)
