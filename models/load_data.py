@@ -69,8 +69,8 @@ class NVAEDataset(Dataset):
         with os.scandir(data_path) as entries:
             traj_dirs = [entry.name for entry in entries if entry.is_dir()]
 
-        for traj in traj_dirs:
-            path = data_path + "/" + traj
+        for traj in range(len(traj_dirs)):
+            path = data_path + "/" + str(traj+1)
             traj_dict = dict()  # 空字典，保存该轨迹下的所有数据
 
             # 加载动作
