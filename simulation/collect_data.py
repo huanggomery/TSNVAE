@@ -88,7 +88,7 @@ def collect_trajectory(env, traj_id, saved):
     if saved:
         save_visual(env, 0, dir)
         save_tactile(env, dir)
-        tcp_positions = np.concatenate((tcp_positions, np.array([[0,0]])), axis=0)
+        tcp_positions = np.concatenate((tcp_positions, mean_pos.reshape(1,2)), axis=0)
 
     for step in range(1, 21):
         a = random_action(env, mean_pos)
@@ -99,7 +99,7 @@ def collect_trajectory(env, traj_id, saved):
             actions = np.concatenate((actions, a.reshape((1,2)) / 0.5), axis=0)
             # t+1时刻的视觉和位置
             save_visual(env, step, dir)
-            cur_pos = get_position(env) - mean_pos
+            cur_pos = get_position(env)
             tcp_positions = np.concatenate((tcp_positions, cur_pos.reshape((1,2))), axis=0)
 
     # 保存动作和位置
