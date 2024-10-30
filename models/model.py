@@ -83,9 +83,10 @@ class TsNewtonianVAE(Model):
             v_KL_loss, _ = self.v_KL_loss({"I_t": I[step+1], "x_t0": x_t, "v_t": v_t1})
 
             total_loss += (v_recon_loss + v_KL_loss)
-            total_loss += (t_recon_loss + vt_recon_loss + vt_KL_loss + add_KL_loss) * T
 
             x_t0 = x_t
+
+        total_loss += (t_recon_loss + vt_recon_loss + vt_KL_loss + add_KL_loss) * T
         
         return total_loss/T
 

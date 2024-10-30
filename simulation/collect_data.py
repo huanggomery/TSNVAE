@@ -15,7 +15,7 @@ from config import GlobalConfig
 from simulation.peg_in_hole import PegInHole
 
 # 固定的零件位置
-hole_position = (0.5, 0, 0)
+hole_position = np.array([0.5, 0, 0])
 
 # 保存的目录
 save_dir = workspace_path + GlobalConfig.data_root
@@ -89,7 +89,7 @@ def collect_trajectory(env, traj_id, saved):
     if saved:
         save_visual(env, 0, dir)
         save_tactile(env, dir)
-        tcp_positions = np.concatenate((tcp_positions, mean_pos.reshape(1,2)), axis=0)
+        tcp_positions = np.concatenate((tcp_positions, (mean_pos-hole_position).reshape(1,2)), axis=0)
 
     for step in range(1, 21):
         a = random_action(env, mean_pos)
@@ -101,7 +101,7 @@ def collect_trajectory(env, traj_id, saved):
             # t+1时刻的视觉和位置
             save_visual(env, step, dir)
             cur_pos = get_position(env)
-            tcp_positions = np.concatenate((tcp_positions, cur_pos.reshape((1,2))), axis=0)
+            tcp_positions = np.concatenate((tcp_positions, (cur_pos-hole_position).reshape((1,2))), axis=0)
 
     # 保存动作和位置
     if saved:
