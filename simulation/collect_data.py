@@ -71,14 +71,15 @@ def collect_trajectory(env, traj_id, saved):
     env.robot.control_gripper("open")
 
     # 随机的抓取位置误差
-    x_err = gauss(0, 0.0015)
-    if x_err < -0.003:
-        x_err = -0.003
-    if x_err > 0.003:
-        x_err = 0.003
+    pos_err = gauss(0, 0.0015)
+    if pos_err < -0.003:
+        pos_err = -0.003
+    if pos_err > 0.003:
+        pos_err = 0.003
 
     # 抓起物体并提升
-    env.robot.step([hole_position[0]+x_err, hole_position[1], 0.055], is_delta=False)
+    env.robot.step([0,0,0],[0,0,np.pi/2], is_delta=True)
+    env.robot.step([hole_position[0], hole_position[1]+pos_err, 0.055], is_delta=False)
     env.robot.control_gripper("close")
     env.robot.step([0,0,0.05])
 

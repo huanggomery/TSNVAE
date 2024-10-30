@@ -147,7 +147,7 @@ class PegInHole:
         pz = np.dot(pz, R_mat)[0]
 
         # 相机位置
-        cameraEyePosition = pos - 0.07*pz + 0.035*py
+        cameraEyePosition = pos - 0.07*pz + 0.08*px
         cameraTargetPosition = cameraEyePosition + 0.2*pz
         viewMatrix = p.computeViewMatrix(cameraEyePosition, cameraTargetPosition, py)
 
