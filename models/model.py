@@ -44,7 +44,7 @@ class TsNewtonianVAE(Model):
         self.optimizer = torch.optim.Adam(params, lr=3e-4)
 
         # 损失函数
-        beta = 0.001
+        beta = 1.0
         self.v_recon_loss = -E(self.transition, LogProb(self.v_decoder)).mean()
         self.v_KL_loss = beta * KL(self.v_encoder, self.transition).mean()
         self.t_recon_loss = -E(self.t_encoder, LogProb(self.t_decoder)).mean()
@@ -68,7 +68,6 @@ class TsNewtonianVAE(Model):
         vt_recon_loss, _ = self.vt_recon_loss({"z": z, "I_t": I[0]})
         vt_KL_loss, _ = self.vt_KL_loss({"I_t": I[0], "z": z})
         add_KL_loss, _ = self.add_KL_loss({"I_t": I[0], "z": z})
-        total_loss += (t_recon_loss + vt_recon_loss + vt_KL_loss + add_KL_loss)
 
         T, B, C = u.shape
 
@@ -84,6 +83,7 @@ class TsNewtonianVAE(Model):
             v_KL_loss, _ = self.v_KL_loss({"I_t": I[step+1], "x_t0": x_t, "v_t": v_t1})
 
             total_loss += (v_recon_loss + v_KL_loss)
+            total_loss += (t_recon_loss + vt_recon_loss + vt_KL_loss + add_KL_loss) * T
 
             x_t0 = x_t
         
