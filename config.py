@@ -3,7 +3,8 @@
 # 禁止直接使用该类
 class __GlobalConfig:
     def __init__(self):
-        self.device = "cuda"               # 训练设备
+        self.device = "cuda"              # 训练设备
+        self.lr = 1e-4                    # 学习率
         self.latent_dim = 2               # 隐藏层的长度
         self.z_dim = 128                  # 触觉向量的长度
         self.delta_time = 0.5             # 控制和采样的间隔时间，s
@@ -33,6 +34,13 @@ t_encoder_param = {
 t_decoder_param = {
     "input_dim": GlobalConfig.z_dim,
     "output_dim": 3,
+}
+
+velocity_param = {
+    "latent_dim": GlobalConfig.latent_dim,
+    "delta_time": GlobalConfig.delta_time,
+    "device": GlobalConfig.device,
+    "use_data_efficiency": True,
 }
 
 target_param = {

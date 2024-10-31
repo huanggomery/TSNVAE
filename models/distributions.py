@@ -228,30 +228,52 @@ class Transition(dist.Normal):
 
 # 计算下一个时刻的速度
 class Velocity(dist.Deterministic):
-    def __init__(self):
+    def __init__(self, latent_dim: int, delta_time: float, device: str, use_data_efficiency: bool):
         super().__init__(var=["v_t"], cond_var=["x_t0", "v_t0", "u_t0"], name="f")
+
+        self.delta_time = delta_time
+        self.use_data_efficiency = use_data_efficiency
+
+        if not self.use_data_efficiency:
+
+            self.coefficient_ABC = nn.Sequential(
+                nn.Linear(latent_dim*3, latent_dim),
+                nn.ReLU(),
+                nn.Linear(latent_dim, latent_dim),
+                nn.ReLU(),
+                nn.Linear(latent_dim, latent_dim),
+                nn.ReLU(),
+                nn.Linear(latent_dim, latent_dim*3),
+            )
+
+        else:
+            self.A = torch.zeros((1, latent_dim, latent_dim)).to(device)
+            self.B = torch.zeros((1, latent_dim, latent_dim)).to(device)
+            self.C = torch.diag_embed(torch.ones(1, latent_dim)).to(device)
 
     def forward(self, x_t0: torch.Tensor, v_t0: torch.Tensor, u_t0: torch.Tensor) -> dict:
         # 论文中将 v_{t+1} 简化为了 u_t，参见公式(6)
-        return {"v_t": u_t0}
+
+        combined_vector = torch.cat([x_t0, v_t0, u_t0], dim=1)
+
+        # For data efficiency
+        if self.use_data_efficiency:
+            A = self.A
+            B = self.B
+            C = self.C
+        else:
+            _A, _B, _C = torch.chunk(self.coefficient_ABC(combined_vector), 3, dim=-1)
+            A = torch.diag_embed(_A)
+            B = torch.diag_embed(-torch.exp(_B))
+            C = torch.diag_embed(torch.exp(_C))
+
+        # Dynamics inspired by Newton's motion equation
+        v_t = v_t0 + self.delta_time * (torch.einsum("ijk,ik->ik", A, x_t0) + torch.einsum(
+            "ijk,ik->ik", B, v_t0) + torch.einsum("ijk,ik->ik", C, u_t0))
+
+        return {"v_t": v_t}
+        # return {"v_t": u_t0}
+
 
 if __name__ == "__main__":
-    encoder = VisualEncoder(6)
-    decoder = VisualDecoder(6, 3)
-
-    I_t = torch.zeros((32, 3, 224, 224))
-    x_t = encoder(I_t)
-    I_t_1 = decoder(x_t['loc'])
-
-    print(I_t.shape)
-    print(x_t['loc'].shape)
-    print(I_t_1['loc'].shape)
-
-
-    # encoder = TactileEncoder(128)
-    # decoder = TactileDecoder(128, 3)
-    # I_z = torch.zeros((32, 3, 64, 64))
-    # z = encoder(I_z)["loc"]
-    # print(z.shape)
-    # I_z1 = decoder(z)["loc"]
-    # print(I_z1.shape)
+    pass

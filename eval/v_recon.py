@@ -9,6 +9,8 @@ sys.path.append(workspace_path)
 
 import torch
 from PIL import Image
+import cv2
+import numpy as np
 
 from models.model import TsNewtonianVAE
 from models.load_data import NVAEDataset
@@ -18,6 +20,17 @@ from config import GlobalConfig
 
 save_root = current_file_path + "/v_recon"
 i = 0
+
+# 显示用cv2从jpg读取并处理后的图片
+# img_torch: [C, W, H]
+def show_img_torch(imgs_torch):
+    for i in range(len(imgs_torch)):
+        img_torch = imgs_torch[i]
+        img_torch *= 255
+        img = img_torch.permute(1,2,0).detach().cpu().numpy().astype(np.uint8)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        cv2.imshow("pic{}".format(i), img)
+    cv2.waitKey(0)
 
 def save_pic(img_origin, img_recon):
     global i
@@ -44,7 +57,9 @@ def recon(model):
         x = model.get_latent(I)    # (steps, DIM)
         I_pred = model.v_decoder(x)["loc"]   # (steps, C, H, W)
 
-        save_pic(I, I_pred)
+        # save_pic(I, I_pred)
+        for step in range(I.shape[0]):
+            show_img_torch([I[step], I_pred[step]])
 
 
 if __name__ == "__main__":

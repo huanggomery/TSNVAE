@@ -23,6 +23,7 @@ class TsNewtonianVAE(Model):
                  v_decoder_param: dict,
                  t_encoder_param: dict,
                  t_decoder_param: dict,
+                 velocity_param: dict,
                  target_param: dict,
                  delta_time: float,
                  device: str = "cpu"
@@ -33,15 +34,15 @@ class TsNewtonianVAE(Model):
         self.v_decoder = VisualDecoder(**v_decoder_param).to(device)
         self.t_decoder = TactileDecoder(**t_decoder_param).to(device)
         self.transition = Transition(delta_time=delta_time).to(device)
-        self.velocity = Velocity().to(device)
+        self.velocity = Velocity(**velocity_param).to(device)
         self.target_model = TargetModel(**target_param).to(device)
         self.norm_g = dist.Normal(loc=0, scale=sigma_g, var=["x_t"]).to(device)
 
         self.distributions = nn.ModuleList(
-            [self.v_encoder, self.v_decoder, self.t_encoder, self.t_decoder, self.transition, self.target_model]
+            [self.v_encoder, self.v_decoder, self.t_encoder, self.t_decoder, self.transition, self.velocity, self.target_model]
         )
         params = self.distributions.parameters()
-        self.optimizer = torch.optim.Adam(params, lr=3e-4)
+        self.optimizer = torch.optim.Adam(params, lr=GlobalConfig.lr)
 
         # 损失函数
         beta = 1.0
@@ -60,14 +61,13 @@ class TsNewtonianVAE(Model):
         I_z = input_var_dict["I_z"]
         z = self.t_encoder.sample({"I_z": I_z}, reparam=True)["z"]
         u = input_var_dict["u"]
-        # beta = input_var_dict["beta"]
 
         total_loss = 0.
 
-        t_recon_loss, _ = self.t_recon_loss({"I_z": I_z})
-        vt_recon_loss, _ = self.vt_recon_loss({"z": z, "I_t": I[0]})
-        vt_KL_loss, _ = self.vt_KL_loss({"I_t": I[0], "z": z})
-        add_KL_loss, _ = self.add_KL_loss({"I_t": I[0], "z": z})
+        # t_recon_loss, _ = self.t_recon_loss({"I_z": I_z})
+        # vt_recon_loss, _ = self.vt_recon_loss({"z": z, "I_t": I[0]})
+        # vt_KL_loss, _ = self.vt_KL_loss({"I_t": I[0], "z": z})
+        # add_KL_loss, _ = self.add_KL_loss({"I_t": I[0], "z": z})
 
         T, B, C = u.shape
 
@@ -86,7 +86,7 @@ class TsNewtonianVAE(Model):
 
             x_t0 = x_t
 
-        total_loss += (t_recon_loss + vt_recon_loss + vt_KL_loss + add_KL_loss) * T
+        # total_loss += (t_recon_loss + vt_recon_loss + vt_KL_loss + add_KL_loss) * T
         
         return total_loss/T
 
