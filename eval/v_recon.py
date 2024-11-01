@@ -68,6 +68,7 @@ if __name__ == "__main__":
         config.v_decoder_param,
         config.t_encoder_param,
         config.t_decoder_param,
+        config.velocity_param,
         config.target_param,
         GlobalConfig.delta_time,
         GlobalConfig.device

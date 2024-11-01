@@ -15,7 +15,7 @@ from config import GlobalConfig
 from simulation.peg_in_hole import PegInHole
 
 # 固定的零件位置
-hole_position = np.array([0.5, 0, 0])
+hole_position = np.array([0.5, 0])
 
 # 保存的目录
 save_dir = workspace_path + GlobalConfig.data_root

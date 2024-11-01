@@ -17,9 +17,10 @@ def train(model, epochs = 500):
         for I, I_z, u in dataloader:
             input_var_dict = {"I": I.permute(1,0,2,3,4), "I_z": I_z, "u": u.permute(1,0,2)}
             loss = model.train(input_var_dict)
-        loss /= len(dataloader.dataset)
+            total_loss += loss
+        total_loss /= len(dataloader.dataset)
 
-        print("Epoch: {} Train loss: {:.4f}".format(i+1, loss))
+        print("Epoch: {} Train loss: {:.4f}".format(i+1, total_loss))
 
 
 if __name__ == "__main__":
@@ -28,6 +29,7 @@ if __name__ == "__main__":
         config.v_decoder_param,
         config.t_encoder_param,
         config.t_decoder_param,
+        config.velocity_param,
         config.target_param,
         GlobalConfig.delta_time,
         GlobalConfig.device
