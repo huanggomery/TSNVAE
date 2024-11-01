@@ -45,6 +45,14 @@ class TsNewtonianVAE(Model):
         self.optimizer = torch.optim.Adam(params, lr=GlobalConfig.lr)
 
         # 损失函数
+        '''
+        v_recon_loss: 训练图片编码和解码
+        v_KL_loss: 训练运动学模型
+        t_recon_loss: 训练触觉的编码和解码
+        vt_recon_loss: 训练触觉target模型
+        vt_KL_loss: 训练视觉编码和target模型的预测结果保持一致
+        add_KL_loss: 训练视觉编码、target模型与先验概率保持一致
+        '''
         self.v_recon_loss = -E(self.transition, LogProb(self.v_decoder)).mean()
         self.v_KL_loss = 100 * KL(self.v_encoder, self.transition).mean()
         self.t_recon_loss = -E(self.t_encoder, LogProb(self.t_decoder)).mean()
