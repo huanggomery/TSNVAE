@@ -54,11 +54,11 @@ class TsNewtonianVAE(Model):
         add_KL_loss: 训练视觉编码、target模型与先验概率保持一致
         '''
         self.v_recon_loss = -E(self.transition, LogProb(self.v_decoder)).mean()
-        self.v_KL_loss = 100 * KL(self.v_encoder, self.transition).mean()
+        self.v_KL_loss = 1 * KL(self.v_encoder, self.transition).mean()
         self.t_recon_loss = -E(self.t_encoder, LogProb(self.t_decoder)).mean()
         self.vt_recon_loss = -E(self.target_model, LogProb(self.v_decoder)).mean()
-        self.vt_KL_loss = 10 * KL(self.v_encoder, self.target_model).mean()
-        self.add_KL_loss = 10 * KL(self.v_encoder, self.norm_g).mean() + KL(self.target_model, self.norm_g).mean()
+        self.vt_KL_loss = 1 * KL(self.v_encoder, self.target_model).mean()
+        self.add_KL_loss = 1 * KL(self.v_encoder, self.norm_g).mean() + KL(self.target_model, self.norm_g).mean()
 
         self.delta_time = delta_time
 
@@ -152,6 +152,20 @@ class TsNewtonianVAE(Model):
     def load(self, path, filename):
         self.distributions.load_state_dict(torch.load(
             f"{path}/{filename}", map_location=torch.device('cpu'))['distributions'])
+
+    def load_part(self, model_name, path):
+        if model_name == "v_encoder":
+            self.v_encoder.load_state_dict(torch.load(path))
+        elif model_name == "v_decoder":
+            self.v_decoder.load_state_dict(torch.load(path))
+        elif model_name == "t_encoder":
+            self.t_encoder.load_state_dict(torch.load(path))
+        elif model_name == "t_decoder":
+            self.t_decoder.load_state_dict(torch.load(path))
+        elif model_name == "target_model":
+            self.target_model.load_state_dict(torch.load(path))
+        else:
+            raise Exception("no such model: {}".format(model_name))
 
 if __name__ == "__main__":
     pass

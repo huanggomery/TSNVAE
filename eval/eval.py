@@ -69,7 +69,10 @@ if __name__ == "__main__":
         GlobalConfig.delta_time,
         GlobalConfig.device
     )
-    model.load("."+GlobalConfig.save_root, "model.pth")
+    # model.load("."+GlobalConfig.save_root, "model.pth")
+    model.load_part("v_encoder", "."+GlobalConfig.save_root+"/v_encoder.pth")
+    model.load_part("t_encoder", "."+GlobalConfig.save_root+"/t_encoder.pth")
+    model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
 
-    x, x_target, pos = eval(model, "train")
+    x, x_target, pos = eval(model, "test")
     draw(x, x_target, pos)

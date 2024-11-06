@@ -1,7 +1,7 @@
 import os
 import sys
 current_file_path = os.path.dirname(__file__)  # 当前文件所在文件夹路径
-workspace_path = os.path.abspath(os.path.join(current_file_path, ".."))
+workspace_path = os.path.abspath(os.path.join(current_file_path, "../.."))
 sys.path.append(workspace_path)
 
 import torch
@@ -33,14 +33,14 @@ def train(encoder, epochs=100):
             loss.backward()
             optimizer.step()
 
-        print("Epoch: {} Train loss: {:.6f}".format(i+1, loss))
+        print("Epoch: {} Train loss: {:.6f}".format(i+1, total_loss))
 
 if __name__ == "__main__":
     encoder = VisualEncoder(GlobalConfig.latent_dim).to(GlobalConfig.device)
-    encoder.load_state_dict(torch.load(
-        workspace_path+GlobalConfig.save_root+"/v_encoder.pth",
-        map_location=torch.device(GlobalConfig.device)
-    ))
+    # encoder.load_state_dict(torch.load(
+    #     workspace_path+GlobalConfig.save_root+"/v_encoder.pth",
+    #     map_location=torch.device(GlobalConfig.device)
+    # ))
 
-    train(encoder, 100)
+    train(encoder, 300)
     torch.save(encoder.state_dict(), workspace_path+GlobalConfig.save_root+"/v_encoder.pth")
