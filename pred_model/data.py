@@ -33,7 +33,8 @@ class MyDataset(Dataset):
         for traj in traj_dirs:
             path = data_path + "/" + traj
 
-            position = np.load(path + "/tcp.npy")
+            position = np.load(path + "/pos.npy")
+            position = position[:, :2] - np.array([410.18, -104.76])
             self.positions = np.concatenate((self.positions, position))
 
             step = 0

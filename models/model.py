@@ -11,7 +11,7 @@ from pixyz import distributions as dist
 import torch
 from torch import nn
 
-from models.distributions import VisualEncoder, TactileEncoder, VisualDecoder, TactileDecoder, Velocity, Transition, TargetModel
+from models.distributions import VisualEncoder, TactileEncoder, VisualDecoder, TactileDecoder, Velocity, Transition, TargetModel, Tac3dEncoder, Tac3dDecoder
 
 from config import GlobalConfig
 
@@ -30,9 +30,11 @@ class TsNewtonianVAE(Model):
         ):
         self.device = device
         self.v_encoder = VisualEncoder(**v_encoder_param).to(device)
-        self.t_encoder = TactileEncoder(**t_encoder_param).to(device)
+        # self.t_encoder = TactileEncoder(**t_encoder_param).to(device)
+        self.t_encoder = Tac3dEncoder(**t_encoder_param).to(device)
         self.v_decoder = VisualDecoder(**v_decoder_param).to(device)
-        self.t_decoder = TactileDecoder(**t_decoder_param).to(device)
+        # self.t_decoder = TactileDecoder(**t_decoder_param).to(device)
+        self.t_decoder = Tac3dDecoder(**t_decoder_param).to(device)
         self.transition = Transition(delta_time=delta_time).to(device)
         self.velocity = Velocity(**velocity_param).to(device)
         self.target_model = TargetModel(**target_param).to(device)

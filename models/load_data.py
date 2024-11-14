@@ -79,12 +79,16 @@ class NVAEDataset(Dataset):
             traj_dict["u"] = action_tensor
 
             # 加载插入状态的触觉图像
-            img = cv2.imread(path + "/I_z.jpg")
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img_np = cv2.resize(img, (TACTILE_SIZE, TACTILE_SIZE)).astype(np.float32)
-            img_torch = torch.from_numpy(img_np).permute(2,0,1).to(device=self.device)
-            img_torch /= 255 # 归一化
-            traj_dict["I_z"] = img_torch
+            # img = cv2.imread(path + "/I_z.jpg")
+            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            # img_np = cv2.resize(img, (TACTILE_SIZE, TACTILE_SIZE)).astype(np.float32)
+            # img_torch = torch.from_numpy(img_np).permute(2,0,1).to(device=self.device)
+            # img_torch /= 255 # 归一化
+            # traj_dict["I_z"] = img_torch
+
+            tactile = np.load(path + "/tactile.npy").reshape(20,20,6).astype(np.float32)
+            tactile_torch = torch.from_numpy(tactile).permute(2,0,1).to(device=self.device)
+            traj_dict["I_z"] = tactile_torch
 
             # 加载该轨迹的所有视觉图像
             traj_dict["I"] = []

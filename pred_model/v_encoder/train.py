@@ -16,7 +16,7 @@ loss_fn = torch.nn.MSELoss().to(GlobalConfig.device)
 
 def train(encoder, epochs=100):
     params = encoder.parameters()
-    optimizer = torch.optim.Adam(params, lr=1e-4)
+    optimizer = torch.optim.Adam(params, lr=1e-3)
     
     dataset = MyDataset(device=GlobalConfig.device)
     dataloader = DataLoader(dataset, 32, shuffle=True)
@@ -42,5 +42,5 @@ if __name__ == "__main__":
     #     map_location=torch.device(GlobalConfig.device)
     # ))
 
-    train(encoder, 300)
+    train(encoder, 100)
     torch.save(encoder.state_dict(), workspace_path+GlobalConfig.save_root+"/v_encoder.pth")

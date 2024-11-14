@@ -96,6 +96,44 @@ class TactileEncoder(dist.Normal):
 
         return {"loc": loc, "scale": scale}
 
+# 利用CNN将触觉图片编码为向量，I_z -> z
+# TODO: 硬编码，只能处理 6*20*20 的图像
+class Tac3dEncoder(dist.Normal):
+    # output_dim：特征向量的维度
+    def __init__(self, output_dim: int):
+        super().__init__(var=["z"], cond_var=["I_z"])
+
+        self.encoder = nn.Sequential(
+            nn.Conv2d(6, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+
+        self.loc = nn.Sequential(
+            nn.Linear(6400, 256),
+            nn.LeakyReLU(),
+            nn.Linear(256, output_dim),
+        )
+
+        self.scale = nn.Sequential(
+            nn.Linear(6400, 256),
+            nn.LeakyReLU(),
+            nn.Linear(256, output_dim),
+            nn.Softplus()
+        )
+
+    def forward(self, I_z: torch.Tensor) -> dict:
+        feature = self.encoder(I_z)
+        feature = torch.flatten(feature, 1)
+
+        loc = self.loc(feature)
+        scale = self.scale(feature) + epsilon()
+
+        return {"loc": loc, "scale": scale}
 
 # 根据触觉编码向量，推断目标x_g，z -> x_g
 class TargetModel(dist.Normal):
@@ -210,6 +248,47 @@ class TactileDecoder(dist.Normal):
 
         return {"loc": loc, "scale": 0.01}
 
+class Tac3dDecoder(dist.Normal):
+    # input_dim：特征向量的维度，output_dim：图片的Channel数
+    def __init__(self, input_dim: int, output_dim: int):
+        super().__init__(var=["I_z"], cond_var=["z"])
+
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.LeakyReLU(),
+            nn.Linear(256, 64*10*10),
+            nn.LeakyReLU(),
+        )
+
+        hiddens = [64, 32, 16]
+        modules = []
+        modules.append(
+            nn.Sequential(
+                nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
+                nn.BatchNorm2d(32),
+                nn.ReLU()
+            )
+        )
+        modules.append(
+            nn.Sequential(
+                nn.ConvTranspose2d(32, 16, kernel_size=3, padding=1),
+                nn.BatchNorm2d(16),
+                nn.ReLU()
+            )
+        )
+        modules.append(
+            nn.ConvTranspose2d(16, output_dim, kernel_size=3, padding=1),
+        )
+
+        self.decoder = nn.Sequential(*modules)
+
+    # 输入为(B, INPUT_DIM) 的向量
+    def forward(self, z: torch.Tensor) -> dict:
+        z = self.fc(z)
+        z = z.view(-1, 64, 10, 10)  # 重塑为(批量大小, 256, 2, 2)
+        loc = self.decoder(z)
+
+        return {"loc": loc, "scale": 0.01}
 
 # 运动学状态转移方程
 class Transition(dist.Normal):
@@ -271,8 +350,8 @@ class Velocity(dist.Deterministic):
         v_t = v_t0 + self.delta_time * (torch.einsum("ijk,ik->ik", A, x_t0) + torch.einsum(
             "ijk,ik->ik", B, v_t0) + torch.einsum("ijk,ik->ik", C, u_t0))
 
-        return {"v_t": v_t}
-        # return {"v_t": u_t0}
+        # return {"v_t": v_t}
+        return {"v_t": u_t0}
 
 
 if __name__ == "__main__":
