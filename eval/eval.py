@@ -34,8 +34,9 @@ def eval(model, mode = "train"):
     # 加载机械臂保存的位姿参数
     positions = np.zeros((0, GlobalConfig.latent_dim))
     for i in range(len(dataset)):
-        filename = workspace_path + GlobalConfig.data_root + "/" + mode + "/{}".format(i+1) + "/tcp.npy"
+        filename = workspace_path + GlobalConfig.data_root + "/" + mode + "/{}".format(i+1) + "/pos.npy"
         position = np.load(filename)
+        position = position[:, :2] - np.array([410.18, -104.76])
         positions = np.concatenate((positions, position), axis=0)
 
     return latent_x_all, latent_target_all, positions
@@ -73,6 +74,7 @@ if __name__ == "__main__":
     model.load_part("v_encoder", "."+GlobalConfig.save_root+"/v_encoder.pth")
     model.load_part("t_encoder", "."+GlobalConfig.save_root+"/t_encoder.pth")
     model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
+    model.eval()
 
     x, x_target, pos = eval(model, "test")
     draw(x, x_target, pos)

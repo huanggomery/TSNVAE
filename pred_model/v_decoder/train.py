@@ -37,10 +37,10 @@ def train(decoder, epochs=100):
 
 if __name__ == "__main__":
     decoder = VisualDecoder(GlobalConfig.latent_dim, 3).to(GlobalConfig.device)
-    decoder.load_state_dict(torch.load(
-        workspace_path+GlobalConfig.save_root+"/v_decoder.pth",
-        map_location=torch.device(GlobalConfig.device)
-    ))
+    # decoder.load_state_dict(torch.load(
+    #     workspace_path+GlobalConfig.save_root+"/v_decoder.pth",
+    #     map_location=torch.device(GlobalConfig.device)
+    # ))
 
     train(decoder, 500)
     torch.save(decoder.state_dict(), workspace_path+GlobalConfig.save_root+"/v_decoder.pth")

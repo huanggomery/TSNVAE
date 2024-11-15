@@ -8,7 +8,7 @@ import torch
 import cv2
 import numpy as np
 
-from models.distributions import TactileEncoder, TactileDecoder
+from models.distributions import TactileEncoder, TactileDecoder, Tac3dEncoder, Tac3dDecoder
 from config import GlobalConfig
 from pred_model.t_decoder.data import MyDataset
 
@@ -32,12 +32,12 @@ def eval(encoder, decoder, mode="train"):
             img = img.unsqueeze(0)
             z = encoder(img)["loc"]
             img1 = decoder(z)["loc"]
-            show_img_torch([img.squeeze(), img1.squeeze()])
+            show_img_torch([img.squeeze()[:3], img1.squeeze()[:3]])
 
 
 if __name__ == "__main__":
-    encoder = TactileEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
-    decoder = TactileDecoder(GlobalConfig.z_dim, 3).to(GlobalConfig.device)
+    encoder = Tac3dEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
+    decoder = Tac3dDecoder(GlobalConfig.z_dim, 6).to(GlobalConfig.device)
     encoder.load_state_dict(torch.load(
         workspace_path+GlobalConfig.save_root+"/t_encoder.pth",
         map_location=torch.device(GlobalConfig.device)
@@ -46,4 +46,6 @@ if __name__ == "__main__":
         workspace_path+GlobalConfig.save_root+"/t_decoder.pth",
         map_location=torch.device(GlobalConfig.device)
     ))
+    encoder.eval()
+    decoder.eval()
     eval(encoder, decoder, "train")

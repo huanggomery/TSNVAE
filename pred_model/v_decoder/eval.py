@@ -35,9 +35,9 @@ def eval(decoder):
 
 # 直接根据位置重建图像，并显示移动情况
 def step_recon(decoder):
-    step = 0.001
+    step = 0.5
     for i in range(10):
-        pos = torch.tensor([[0, -step*i]], dtype=torch.float32, device=GlobalConfig.device)
+        pos = torch.tensor([[step*i, 0]], dtype=torch.float32, device=GlobalConfig.device)
         img = decoder(pos)["loc"].squeeze()
         show_img_torch([img])
 
@@ -48,6 +48,7 @@ if __name__ == "__main__":
         workspace_path+GlobalConfig.save_root+"/v_decoder.pth",
         map_location=torch.device(GlobalConfig.device)
     ))
+    decoder.eval()
 
     step_recon(decoder)
     # eval(decoder)

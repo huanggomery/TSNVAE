@@ -8,7 +8,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-from models.distributions import TactileEncoder, TargetModel
+from models.distributions import TactileEncoder, Tac3dEncoder, TargetModel
 from pred_model.t_encoder.data import MyDataset
 from config import GlobalConfig
 
@@ -37,8 +37,10 @@ def draw(pos_ori, pos_pred):
     plt.show()
 
 if __name__ == "__main__":
-    encoder = TactileEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
+    encoder = Tac3dEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
     target = TargetModel(GlobalConfig.z_dim, 2).to(GlobalConfig.device)
+    encoder.eval()
+    target.eval()
     encoder.load_state_dict(torch.load(
         workspace_path+GlobalConfig.save_root+"/t_encoder.pth",
         map_location=torch.device(GlobalConfig.device)

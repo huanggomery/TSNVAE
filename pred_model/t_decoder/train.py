@@ -8,7 +8,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
-from models.distributions import TactileEncoder, TactileDecoder
+from models.distributions import TactileEncoder, TactileDecoder, Tac3dEncoder, Tac3dDecoder
 from config import GlobalConfig
 from pred_model.t_decoder.data import MyDataset
 
@@ -39,16 +39,17 @@ def train(encoder, decoder, epochs=100):
         print("Epoch: {} Train loss: {:.6f}".format(i+1, total_loss))
 
 if __name__ == "__main__":
-    encoder = TactileEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
-    decoder = TactileDecoder(GlobalConfig.z_dim, 3).to(GlobalConfig.device)
+    encoder = Tac3dEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
+    decoder = Tac3dDecoder(GlobalConfig.z_dim, 6).to(GlobalConfig.device)
     encoder.load_state_dict(torch.load(
         workspace_path+GlobalConfig.save_root+"/t_encoder.pth",
         map_location=torch.device(GlobalConfig.device)
     ))
-    decoder.load_state_dict(torch.load(
-        workspace_path+GlobalConfig.save_root+"/t_decoder.pth",
-        map_location=torch.device(GlobalConfig.device)
-    ))
+    encoder.eval()
+    # decoder.load_state_dict(torch.load(
+    #     workspace_path+GlobalConfig.save_root+"/t_decoder.pth",
+    #     map_location=torch.device(GlobalConfig.device)
+    # ))
 
     train(encoder, decoder, 20000)
     torch.save(decoder.state_dict(), workspace_path+GlobalConfig.save_root+"/t_decoder.pth")

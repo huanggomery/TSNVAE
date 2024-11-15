@@ -141,6 +141,16 @@ class TsNewtonianVAE(Model):
             x_g = x_g.squeeze()
         
         return x_g
+    
+    # 评估模式
+    def eval(self):
+        self.v_encoder.eval()
+        self.v_decoder.eval()
+        self.t_encoder.eval()
+        self.t_decoder.eval()
+        self.target_model.eval()
+        self.transition.eval()
+        self.velocity.eval()
 
     def save(self, path, filename):
         os.makedirs(path, exist_ok=True)

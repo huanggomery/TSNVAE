@@ -33,7 +33,7 @@ t_encoder_param = {
 
 t_decoder_param = {
     "input_dim": GlobalConfig.z_dim,
-    "output_dim": 3,
+    "output_dim": 6,
 }
 
 velocity_param = {
