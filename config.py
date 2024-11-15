@@ -10,8 +10,8 @@ class __GlobalConfig:
         self.delta_time = 0.5             # 控制和采样的间隔时间，s
         self.visual_size = 224            # 视觉图像尺寸
         self.tactile_size = 64            # 触觉图像尺寸
-        self.position_accuracy = 0.0001   # 机器人的定位精度 m
-        self.grasp_error = 0.0015         # 抓取误差 m
+        self.position_accuracy = 0.1      # 机器人的定位精度 mm
+        self.grasp_error = 2              # 抓取误差 mm
         self.data_root = "/data"          # 数据根目录，组织结构见 load_data.py
         self.save_root = "/save"          # 训练参数保存路径
 

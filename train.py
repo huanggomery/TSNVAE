@@ -35,11 +35,11 @@ if __name__ == "__main__":
         GlobalConfig.device
     )
 
-    # model.load("."+GlobalConfig.save_root, "model.pth")
-    model.load_part("v_encoder", "."+GlobalConfig.save_root+"/v_encoder.pth")
-    model.load_part("v_decoder", "."+GlobalConfig.save_root+"/v_decoder.pth")
-    model.load_part("t_encoder", "."+GlobalConfig.save_root+"/t_encoder.pth")
-    model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
-    train(model, 200)
+    model.load("."+GlobalConfig.save_root, "model.pth")
+    # model.load_part("v_encoder", "."+GlobalConfig.save_root+"/v_encoder.pth")
+    # model.load_part("v_decoder", "."+GlobalConfig.save_root+"/v_decoder.pth")
+    # model.load_part("t_encoder", "."+GlobalConfig.save_root+"/t_encoder.pth")
+    # model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
+    train(model, 500)
 
     model.save("."+GlobalConfig.save_root, "model.pth")
