@@ -36,7 +36,7 @@ def eval(model, mode = "train"):
     for i in range(len(dataset)):
         filename = workspace_path + GlobalConfig.data_root + "/" + mode + "/{}".format(i+1) + "/pos.npy"
         position = np.load(filename)
-        position = position[:, :2] - np.array([410.18, -104.76])
+        position = position[:, [0,1,3,4,5]] - np.array([407.83, -106.0, -180.0, 0, 0])
         positions = np.concatenate((positions, position), axis=0)
 
     return latent_x_all, latent_target_all, positions
@@ -49,12 +49,25 @@ def draw(x, x_target, pos):
     plt.axis("equal")
 
     plt.figure(1)
+    plt.subplot(1,5,1)
     plt.title("latent x - position x")
     plt.scatter(x[:, 0], pos[:, 0], s=1)
 
-    plt.figure(2)
+    plt.subplot(1,5,2)
     plt.title("latent y - position y")
     plt.scatter(x[:, 1], pos[:, 1], s=1)
+
+    plt.subplot(1,5,3)
+    plt.title("latent rx - position rx")
+    plt.scatter(x[:, 2], pos[:, 2], s=1)
+
+    plt.subplot(1,5,4)
+    plt.title("latent ry - position ry")
+    plt.scatter(x[:, 3], pos[:, 3], s=1)
+
+    plt.subplot(1,5,5)
+    plt.title("latent rz - position rz")
+    plt.scatter(x[:, 4], pos[:, 4], s=1)
 
     plt.show()
 

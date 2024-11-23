@@ -30,15 +30,21 @@ def eval(encoder, target):
     return pos_ori, pos_pred
 
 def draw(pos_ori, pos_pred):
-    plt.figure(0)
+    plt.subplot(1,5,1)
     plt.scatter(pos_ori[:, 0], pos_pred[:, 0], s=1)
-    plt.figure(1)
+    plt.subplot(1,5,2)
     plt.scatter(pos_ori[:, 1], pos_pred[:, 1], s=1)
+    plt.subplot(1,5,3)
+    plt.scatter(pos_ori[:, 2], pos_pred[:, 2], s=1)
+    plt.subplot(1,5,4)
+    plt.scatter(pos_ori[:, 3], pos_pred[:, 3], s=1)
+    plt.subplot(1,5,5)
+    plt.scatter(pos_ori[:, 4], pos_pred[:, 4], s=1)
     plt.show()
 
 if __name__ == "__main__":
     encoder = Tac3dEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
-    target = TargetModel(GlobalConfig.z_dim, 2).to(GlobalConfig.device)
+    target = TargetModel(GlobalConfig.z_dim, GlobalConfig.latent_dim).to(GlobalConfig.device)
     encoder.eval()
     target.eval()
     encoder.load_state_dict(torch.load(

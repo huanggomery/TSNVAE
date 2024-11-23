@@ -40,7 +40,7 @@ def train(encoder, target, epochs=100):
 
 if __name__ == "__main__":
     encoder = Tac3dEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
-    target = TargetModel(GlobalConfig.z_dim, 2).to(GlobalConfig.device)
+    target = TargetModel(GlobalConfig.z_dim, GlobalConfig.latent_dim).to(GlobalConfig.device)
     # encoder.load_state_dict(torch.load(
     #     workspace_path+GlobalConfig.save_root+"/t_encoder.pth",
     #     map_location=torch.device(GlobalConfig.device)

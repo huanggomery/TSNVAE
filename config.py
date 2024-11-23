@@ -5,7 +5,7 @@ class __GlobalConfig:
     def __init__(self):
         self.device = "cuda"              # 训练设备
         self.lr = 1e-4                    # 学习率
-        self.latent_dim = 2               # 隐藏层的长度
+        self.latent_dim = 5               # 隐藏层的长度
         self.z_dim = 128                  # 触觉向量的长度
         self.delta_time = 0.5             # 控制和采样的间隔时间，s
         self.visual_size = 224            # 视觉图像尺寸

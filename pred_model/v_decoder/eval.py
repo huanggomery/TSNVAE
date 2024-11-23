@@ -50,5 +50,5 @@ if __name__ == "__main__":
     ))
     decoder.eval()
 
-    step_recon(decoder)
-    # eval(decoder)
+    # step_recon(decoder)
+    eval(decoder)
