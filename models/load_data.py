@@ -39,7 +39,8 @@ sys.path.append(workspace_path)
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset
-import cv2
+from torchvision import transforms
+from PIL import Image
 
 from config import GlobalConfig
 
@@ -64,6 +65,19 @@ class NVAEDataset(Dataset):
             self.load_data(DATA_ROOT + "/test")
         else:
             raise Exception("模式只能是train或者test")
+
+        self.transform = transforms.Compose([
+            # 将PIL图像转换为Tensor
+            transforms.ToTensor(),
+            transforms.Resize((256,256)),
+            transforms.RandomCrop(VISUAL_SIZE),
+            # 随机调整亮度、对比度、饱和度和色调
+            transforms.ColorJitter(brightness=0.2, contrast=0.5, saturation=0.5, hue=0.1),
+            # 高斯模糊
+            transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 2.0)),
+            # 随机擦除
+            transforms.RandomErasing(p=0.5, scale=(0.05, 0.15), ratio=(0.3, 3.3), value=0, inplace=False),
+        ])
 
     def load_data(self, data_path):
         with os.scandir(data_path) as entries:
@@ -97,22 +111,25 @@ class NVAEDataset(Dataset):
                 img_name = path + "/" + str(step) + ".jpg"
                 if not os.path.exists(img_name):
                     break
-                img = cv2.imread(img_name)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                img_np = cv2.resize(img, (VISUAL_SIZE, VISUAL_SIZE)).astype(np.float32)
-                img_torch = torch.from_numpy(img_np).permute(2,0,1).to(device=self.device)
-                img_torch /= 255 # 归一化
-                traj_dict["I"].append(img_torch)
+
+                img = Image.open(img_name)
+                traj_dict["I"].append(img)
+
                 step += 1
 
-            traj_dict["I"] = torch.stack(traj_dict["I"])
             self.data.append(traj_dict)
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, index):
-        return self.data[index]["I"], self.data[index]["I_z"], self.data[index]["u"]
+        imgs = []
+        for img in self.data[index]["I"]:
+            img_torch = self.transform(img).to(device=self.device)
+            imgs.append(img_torch)
+        imgs = torch.stack(imgs)
+
+        return imgs, self.data[index]["I_z"], self.data[index]["u"]
 
 
 def get_loader(mode: str = "train", device: str = "cpu"):
