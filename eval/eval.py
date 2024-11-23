@@ -43,31 +43,43 @@ def eval(model, mode = "train"):
 
 def draw(x, x_target, pos):
     plt.figure(0)
-    plt.title("latent scatter")
+    plt.subplot(1,2,1)
+    plt.title("latent scatter x-y")
     plt.scatter(x[:, 0], x[:, 1], s=1, c=[0,0,1])
     plt.scatter(x_target[:, 0], x_target[:, 1], s=5, c=[1,0,0])
+    plt.axis("equal")
+
+    plt.subplot(1,2,2)
+    plt.title("latent scatter rx-ry")
+    plt.scatter(x[:, 2], x[:, 3], s=1, c=[0,0,1])
+    plt.scatter(x_target[:, 2], x_target[:, 3], s=5, c=[1,0,0])
     plt.axis("equal")
 
     plt.figure(1)
     plt.subplot(1,5,1)
     plt.title("latent x - position x")
     plt.scatter(x[:, 0], pos[:, 0], s=1)
+    plt.plot([np.min(pos[:,0]), np.max(pos[:,0])], [np.min(pos[:,0]), np.max(pos[:,0])], color='red', lw=0.5)
 
     plt.subplot(1,5,2)
     plt.title("latent y - position y")
     plt.scatter(x[:, 1], pos[:, 1], s=1)
+    plt.plot([np.min(pos[:,1]), np.max(pos[:,1])], [np.min(pos[:,1]), np.max(pos[:,1])], color='red', lw=0.5)
 
     plt.subplot(1,5,3)
     plt.title("latent rx - position rx")
     plt.scatter(x[:, 2], pos[:, 2], s=1)
+    plt.plot([np.min(pos[:,2]), np.max(pos[:,2])], [np.min(pos[:,2]), np.max(pos[:,2])], color='red', lw=0.5)
 
     plt.subplot(1,5,4)
     plt.title("latent ry - position ry")
     plt.scatter(x[:, 3], pos[:, 3], s=1)
+    plt.plot([np.min(pos[:,3]), np.max(pos[:,3])], [np.min(pos[:,3]), np.max(pos[:,3])], color='red', lw=0.5)
 
     plt.subplot(1,5,5)
     plt.title("latent rz - position rz")
     plt.scatter(x[:, 4], pos[:, 4], s=1)
+    plt.plot([np.min(pos[:,4]), np.max(pos[:,4])], [np.min(pos[:,4]), np.max(pos[:,4])], color='red', lw=0.5)
 
     plt.show()
 
