@@ -24,7 +24,7 @@ class MyDataset(Dataset):
         super().__init__()
 
         self.device = device
-        data_path = DATA_ROOT + "/train"
+        data_path = DATA_ROOT + "/" + mode
 
         self.positions = np.zeros((0, GlobalConfig.latent_dim))
         self.imgs = []

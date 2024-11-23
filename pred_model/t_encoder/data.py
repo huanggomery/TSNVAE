@@ -22,7 +22,7 @@ class MyDataset(Dataset):
     def __init__(self, mode: str = "train", device: str = "cpu"):
         super().__init__()
 
-        data_path = DATA_ROOT + "/train"
+        data_path = DATA_ROOT + "/" + mode
 
         self.positions = np.zeros((0, GlobalConfig.latent_dim))
         self.imgs = []
