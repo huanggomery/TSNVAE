@@ -72,7 +72,7 @@ class NVAEDataset(Dataset):
             transforms.Resize((256,256)),
             transforms.RandomCrop(VISUAL_SIZE),
             # 随机调整亮度、对比度、饱和度和色调
-            transforms.ColorJitter(brightness=0.2, contrast=0.5, saturation=0.5, hue=0.1),
+            transforms.ColorJitter(brightness=0.2, contrast=0.5, saturation=0.5, hue=[-0.5, 0.5]),
             # 高斯模糊
             transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 2.0)),
             # 随机擦除
