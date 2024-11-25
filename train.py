@@ -39,6 +39,7 @@ if __name__ == "__main__":
     # model.load_part("v_encoder", "."+GlobalConfig.save_root+"/v_encoder.pth")
     # model.load_part("v_decoder", "."+GlobalConfig.save_root+"/v_decoder.pth")
     # model.load_part("t_encoder", "."+GlobalConfig.save_root+"/t_encoder.pth")
+    # model.load_part("t_decoder", "."+GlobalConfig.save_root+"/t_decoder.pth")
     # model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
     train(model, 500)
 

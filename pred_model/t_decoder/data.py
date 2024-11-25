@@ -47,6 +47,7 @@ class MyDataset(Dataset):
             # self.imgs.append(img_torch)
 
             tactile = np.load(path + "/tactile.npy").reshape(20,20,6).astype(np.float32)
+            tactile[:,:,:3] /= 10
             tactile_torch = torch.from_numpy(tactile).permute(2,0,1).to(device=device)
             self.imgs.append(tactile_torch)
 

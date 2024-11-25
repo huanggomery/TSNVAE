@@ -206,7 +206,7 @@ class VisualDecoder(dist.Normal):
         x_t = x_t.view(-1, 512, 7, 7)  # 重塑为(批量大小, 512, 7, 7)
         loc = self.decoder(x_t)
 
-        return {"loc": loc, "scale": 0.01}
+        return {"loc": loc, "scale": 0.1}
 
 
 # 将触觉向量恢复成触觉图片， z -> I_z
@@ -288,7 +288,7 @@ class Tac3dDecoder(dist.Normal):
         z = z.view(-1, 64, 10, 10)  # 重塑为(批量大小, 256, 2, 2)
         loc = self.decoder(z)
 
-        return {"loc": loc, "scale": 0.01}
+        return {"loc": loc, "scale": 0.1}
 
 # 运动学状态转移方程
 class Transition(dist.Normal):

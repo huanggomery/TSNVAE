@@ -101,6 +101,7 @@ class NVAEDataset(Dataset):
             # traj_dict["I_z"] = img_torch
 
             tactile = np.load(path + "/tactile.npy").reshape(20,20,6).astype(np.float32)
+            tactile[:,:,:3] /= 10
             tactile_torch = torch.from_numpy(tactile).permute(2,0,1).to(device=self.device)
             traj_dict["I_z"] = tactile_torch
 
