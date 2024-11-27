@@ -59,27 +59,27 @@ def draw(x, x_target, pos):
     plt.subplot(1,5,1)
     plt.title("latent x - position x")
     plt.scatter(x[:, 0], pos[:, 0], s=1)
-    plt.plot([np.min(pos[:,0]), np.max(pos[:,0])], [np.min(pos[:,0]), np.max(pos[:,0])], color='red', lw=0.5)
+    # plt.plot([np.min(pos[:,0]), np.max(pos[:,0])], [np.min(pos[:,0]), np.max(pos[:,0])], color='red', lw=0.5)
 
     plt.subplot(1,5,2)
     plt.title("latent y - position y")
     plt.scatter(x[:, 1], pos[:, 1], s=1)
-    plt.plot([np.min(pos[:,1]), np.max(pos[:,1])], [np.min(pos[:,1]), np.max(pos[:,1])], color='red', lw=0.5)
+    # plt.plot([np.min(pos[:,1]), np.max(pos[:,1])], [np.min(pos[:,1]), np.max(pos[:,1])], color='red', lw=0.5)
 
     plt.subplot(1,5,3)
     plt.title("latent rx - position rx")
     plt.scatter(x[:, 2], pos[:, 2], s=1)
-    plt.plot([np.min(pos[:,2]), np.max(pos[:,2])], [np.min(pos[:,2]), np.max(pos[:,2])], color='red', lw=0.5)
+    # plt.plot([np.min(pos[:,2]), np.max(pos[:,2])], [np.min(pos[:,2]), np.max(pos[:,2])], color='red', lw=0.5)
 
     plt.subplot(1,5,4)
     plt.title("latent ry - position ry")
     plt.scatter(x[:, 3], pos[:, 3], s=1)
-    plt.plot([np.min(pos[:,3]), np.max(pos[:,3])], [np.min(pos[:,3]), np.max(pos[:,3])], color='red', lw=0.5)
+    # plt.plot([np.min(pos[:,3]), np.max(pos[:,3])], [np.min(pos[:,3]), np.max(pos[:,3])], color='red', lw=0.5)
 
     plt.subplot(1,5,5)
     plt.title("latent rz - position rz")
     plt.scatter(x[:, 4], pos[:, 4], s=1)
-    plt.plot([np.min(pos[:,4]), np.max(pos[:,4])], [np.min(pos[:,4]), np.max(pos[:,4])], color='red', lw=0.5)
+    # plt.plot([np.min(pos[:,4]), np.max(pos[:,4])], [np.min(pos[:,4]), np.max(pos[:,4])], color='red', lw=0.5)
 
     plt.show()
 
@@ -95,11 +95,11 @@ if __name__ == "__main__":
         GlobalConfig.delta_time,
         GlobalConfig.device
     )
-    model.load("."+GlobalConfig.save_root, "model.pth")
+    model.load(workspace_path+GlobalConfig.save_root, "model.pth")
     # model.load_part("v_encoder", "."+GlobalConfig.save_root+"/v_encoder.pth")
     # model.load_part("t_encoder", "."+GlobalConfig.save_root+"/t_encoder.pth")
     # model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
     model.eval()
 
-    x, x_target, pos = eval(model, "test")
+    x, x_target, pos = eval(model, "train")
     draw(x, x_target, pos)
