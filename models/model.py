@@ -60,7 +60,7 @@ class TsNewtonianVAE(Model):
         self.t_recon_loss = -E(self.t_encoder, LogProb(self.t_decoder)).mean()
         self.vt_recon_loss = -E(self.target_model, LogProb(self.v_decoder)).mean()
         self.vt_KL_loss = 1 * KL(self.v_encoder, self.target_model).mean()
-        self.add_KL_loss = 1 * KL(self.v_encoder, self.norm_g).mean() + KL(self.target_model, self.norm_g).mean()
+        self.add_KL_loss = 1 * (KL(self.v_encoder, self.norm_g).mean() + KL(self.target_model, self.norm_g).mean())
 
         self.delta_time = delta_time
 

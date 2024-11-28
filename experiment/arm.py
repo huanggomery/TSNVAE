@@ -16,7 +16,7 @@ SN = ''
 home_pos = [300, -100.0, 45.00, -180.0, 0.0, 0.0]
 usb_pos = [407.83, -106., 60]
 velocity_limit = 5  # 随机运动时的速度限制，单位 mm/s
-rotation_limit = 6  # 随机运动时的旋转限制，单位 °/s
+rotation_limit = 5  # 随机运动时的旋转限制，单位 °/s
 
 def Tac3DRecvCallback(frame, param):
     global SN
