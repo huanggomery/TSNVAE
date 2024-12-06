@@ -36,7 +36,7 @@ class MyDataset(Dataset):
             path = data_path + "/" + traj
 
             position = np.load(path + "/pos.npy")
-            position = position[:, [0,1,3,4,5]] - np.array([407.83, -106.0, -180.0, 0, 0])
+            position = position[:, [0,1,3,4,5]]
             self.positions = np.concatenate((self.positions, position))
 
             step = 0

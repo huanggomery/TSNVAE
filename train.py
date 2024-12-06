@@ -22,6 +22,9 @@ def train(model, epochs = 500):
 
         print("Epoch: {} Train loss: {:.4f}".format(i+1, total_loss))
 
+        if (i+1) % 100 == 0:
+            model.save("."+GlobalConfig.save_root, "model_{}.pth".format(i+1))
+
 
 if __name__ == "__main__":
     model = TsNewtonianVAE(

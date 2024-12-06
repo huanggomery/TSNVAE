@@ -9,7 +9,7 @@ class __GlobalConfig:
         self.z_dim = 128                  # 触觉向量的长度
         self.delta_time = 0.5             # 控制和采样的间隔时间，s
         self.visual_size = 224            # 视觉图像尺寸
-        self.tactile_size = 64            # 触觉图像尺寸
+        self.tactile_size = 120            # 触觉图像尺寸
         self.position_accuracy = 0.1      # 机器人的定位精度 mm
         self.grasp_error = 2              # 抓取误差 mm
         self.data_root = "/data"          # 数据根目录，组织结构见 load_data.py
@@ -33,7 +33,7 @@ t_encoder_param = {
 
 t_decoder_param = {
     "input_dim": GlobalConfig.z_dim,
-    "output_dim": 6,
+    "output_dim": 3,
 }
 
 velocity_param = {

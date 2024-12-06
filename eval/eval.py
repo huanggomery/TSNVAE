@@ -36,7 +36,7 @@ def eval(model, mode = "train"):
     for i in range(len(dataset)):
         filename = workspace_path + GlobalConfig.data_root + "/" + mode + "/{}".format(i+1) + "/pos.npy"
         position = np.load(filename)
-        position = position[:, [0,1,3,4,5]] - np.array([407.83, -106.0, -180.0, 0, 0])
+        position = position[:, [0,1,3,4,5]]
         positions = np.concatenate((positions, position), axis=0)
 
     return latent_x_all, latent_target_all, positions
@@ -101,5 +101,5 @@ if __name__ == "__main__":
     # model.load_part("target_model", "."+GlobalConfig.save_root+"/target.pth")
     model.eval()
 
-    x, x_target, pos = eval(model, "train")
+    x, x_target, pos = eval(model, "test")
     draw(x, x_target, pos)

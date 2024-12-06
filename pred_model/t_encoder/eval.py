@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from models.distributions import TactileEncoder, Tac3dEncoder, TargetModel
-from pred_model.t_encoder.data import MyDataset
+from pred_model.t_data import MyDataset
 from config import GlobalConfig
 
 
@@ -43,7 +43,7 @@ def draw(pos_ori, pos_pred):
     plt.show()
 
 if __name__ == "__main__":
-    encoder = Tac3dEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
+    encoder = TactileEncoder(GlobalConfig.z_dim).to(GlobalConfig.device)
     target = TargetModel(GlobalConfig.z_dim, GlobalConfig.latent_dim).to(GlobalConfig.device)
     encoder.eval()
     target.eval()

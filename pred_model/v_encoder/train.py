@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 from models.distributions import VisualEncoder
 from config import GlobalConfig
-from pred_model.data import MyDataset
+from pred_model.v_data import MyDataset
 
 
 loss_fn = torch.nn.MSELoss().to(GlobalConfig.device)

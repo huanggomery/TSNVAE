@@ -10,7 +10,7 @@ import numpy as np
 
 from models.distributions import VisualDecoder
 from config import GlobalConfig
-from pred_model.data import MyDataset
+from pred_model.v_data import MyDataset
 
 
 # 显示用cv2从jpg读取并处理后的图片

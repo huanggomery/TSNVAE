@@ -5,9 +5,10 @@ workspace_path = os.path.abspath(os.path.join(current_file_path, "../.."))
 sys.path.append(workspace_path)
 
 from torch.utils.data import Dataset
-import cv2
+from PIL import Image
 import numpy as np
 import torch
+from torchvision import transforms
 
 from config import GlobalConfig
 
@@ -27,6 +28,11 @@ class MyDataset(Dataset):
         self.positions = np.zeros((0, GlobalConfig.latent_dim))
         self.imgs = []
 
+        trans = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Resize([TACTILE_SIZE,TACTILE_SIZE]),
+        ])
+
         with os.scandir(data_path) as entries:
             traj_dirs = [entry.name for entry in entries if entry.is_dir()]
 
@@ -34,22 +40,19 @@ class MyDataset(Dataset):
             path = data_path + "/" + traj
 
             position = np.load(path + "/pos.npy")
-            position = position[:, [0,1,3,4,5]] - np.array([407.83, -106.0, -180.0, 0, 0])
+            position = position[:, [0,1,3,4,5]]
             position = position[0].reshape(1,GlobalConfig.latent_dim)
             self.positions = np.concatenate((self.positions, position))
 
-            # img_name = path + "/I_z.jpg"
-            # img = cv2.imread(img_name)
-            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            # img_np = cv2.resize(img, (TACTILE_SIZE, TACTILE_SIZE)).astype(np.float32)
-            # img_torch = torch.from_numpy(img_np).permute(2,0,1).to(device=device)
-            # img_torch /= 255 # 归一化
-            # self.imgs.append(img_torch)
+            img_name = path + "/I_z.jpg"
+            img = Image.open(img_name)
+            img = trans(img).to(device=device)
+            self.imgs.append(img)
 
-            tactile = np.load(path + "/tactile.npy").reshape(20,20,6).astype(np.float32)
-            tactile[:,:,:3] /= 10
-            tactile_torch = torch.from_numpy(tactile).permute(2,0,1).to(device=device)
-            self.imgs.append(tactile_torch)
+            # tactile = np.load(path + "/tactile.npy").reshape(20,20,6).astype(np.float32)
+            # tactile[:,:,:3] /= 10
+            # tactile_torch = torch.from_numpy(tactile).permute(2,0,1).to(device=device)
+            # self.imgs.append(tactile_torch)
 
         self.positions = torch.from_numpy(self.positions).to(device=device, dtype=torch.float32)
 

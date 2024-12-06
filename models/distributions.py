@@ -55,37 +55,31 @@ class VisualEncoder(dist.Normal):
 
 
 # 利用CNN将触觉图片编码为向量，I_z -> z
-# TODO: 硬编码，只能处理 64*64的图像
+# TODO: 硬编码，只能处理 120*120的图像
 class TactileEncoder(dist.Normal):
     # output_dim：特征向量的维度
     def __init__(self, output_dim: int):
         super().__init__(var=["z"], cond_var=["I_z"])
 
         self.encoder = nn.Sequential(
-            nn.Conv2d(3, 32, 4, stride=2),
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.Conv2d(32, 64, 4, stride=2),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.Conv2d(64, 128, 4, stride=2),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.Conv2d(128, 256, 4, stride=2),
-            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
 
-        self.loc = nn.Sequential(
-            nn.Linear(1024, 256),
-            nn.LeakyReLU(),
-            nn.Linear(256, output_dim),
-        )
-
+        self.loc = nn.Linear(128*15*15, output_dim)
         self.scale = nn.Sequential(
-            nn.Linear(1024, 256),
-            nn.LeakyReLU(),
-            nn.Linear(256, output_dim),
-            nn.Softplus()
+            nn.Linear(128*15*15, output_dim),
+            nn.Softplus(),
         )
 
-    # 输入为 (B, C, W, H) 的图片，例如 (32, 3, 64, 64)
+    # 输入为 (B, C, W, H) 的图片，例如 (32, 3, 120, 120)
     def forward(self, I_z: torch.Tensor) -> dict:
         feature = self.encoder(I_z)
         B, C, W, H = feature.shape
@@ -216,34 +210,21 @@ class TactileDecoder(dist.Normal):
         super().__init__(var=["I_z"], cond_var=["z"])
 
         self.fc = nn.Sequential(
-            nn.Linear(input_dim, 256),
-            nn.LeakyReLU(),
-            nn.Linear(256, 256*2*2),
-            nn.LeakyReLU(),
+            nn.Linear(input_dim, input_dim*15*15),
+            nn.ReLU(),
         )
-
-        hiddens = [256, 128, 64, 32, 16]
-        modules = []
-        for i in range(len(hiddens)-1):
-            modules.append(
-                nn.Sequential(
-                    nn.ConvTranspose2d(hiddens[i], hiddens[i+1], kernel_size=4, stride=2, padding=1),
-                    nn.BatchNorm2d(hiddens[i+1]),
-                    nn.ReLU()
-                )
-            )
-        modules.append(
-            nn.Sequential(
-                nn.ConvTranspose2d(16, output_dim, kernel_size=4, stride=2, padding=1),
-                nn.Sigmoid()
-            )
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2),
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2),
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, output_dim, kernel_size=2, stride=2),
         )
-        self.decoder = nn.Sequential(*modules)
 
     # 输入为(B, INPUT_DIM) 的向量
     def forward(self, z: torch.Tensor) -> dict:
         z = self.fc(z)
-        z = z.view(-1, 256, 2, 2)  # 重塑为(批量大小, 256, 2, 2)
+        z = z.view(-1, 128, 15, 15)  # 重塑为(批量大小, 128, 2, 2)
         loc = self.decoder(z)
 
         return {"loc": loc, "scale": 0.01}
