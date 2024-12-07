@@ -4,15 +4,18 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import time
 from random import gauss, uniform
-import pyrealsense2 as rs
 import numpy as np
 
-
 from xarm.wrapper import XArmAPI
-from PyTac3D import Sensor
+# from PyTac3D import Sensor
+from gelsight import gsdevice
+import pyrealsense2 as rs
 
 ip = '192.168.1.118'
 SN = ''
+gelsightID1 = ''
+gelsightID2 = ''
+
 home_pos = [300, -100.0, 45.00, -180.0, 0.0, 0.0]
 usb_pos = [407.83, -106., 60]
 velocity_limit = 5  # 随机运动时的速度限制，单位 mm/s
@@ -41,13 +44,19 @@ class Arm:
         config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         self.pipeline.start(config)
 
-        # 初始化触觉传感器
-        global SN
-        self.tacSensor = Sensor(recvCallback=Tac3DRecvCallback, port=9988)
-        self.tacSensor.waitForFrame()
-        time.sleep(1)
-        self.tacSensor.calibrate(SN)
-        time.sleep(1)
+        # # 初始化Tac3d触觉传感器
+        # global SN
+        # self.tacSensor = Sensor(recvCallback=Tac3DRecvCallback, port=9988)
+        # self.tacSensor.waitForFrame()
+        # time.sleep(1)
+        # self.tacSensor.calibrate(SN)
+        # time.sleep(1)
+
+        # 初始化gelsight触觉传感器
+        self.gs1 = gsdevice.Camera(gelsightID1)
+        self.gs2 = gsdevice.Camera(gelsightID2)
+        self.gs1.connect()
+        self.gs2.connect()
 
         self.delta_time = delta_time
 
@@ -91,7 +100,7 @@ class Arm:
         rot_noise = np.array([uniform(-rotation_limit, rotation_limit), uniform(-rotation_limit, rotation_limit), uniform(-rotation_limit, rotation_limit)])
 
         # 恢复
-        restore_factor = 0.1
+        restore_factor = 0.3
         cur_position = self.get_pos()
         cur_pos = cur_position[:2]
         pos_restore = -restore_factor * (cur_pos - np.array([usb_pos[0]+self.x_err, usb_pos[1]])) / self.delta_time
@@ -124,13 +133,19 @@ class Arm:
         states = np.array(self.arm.get_joint_states(is_radian=False)[1][0])
         return states
 
-    # 返回 (400, 6)
+    # # Tac3d 返回 (400, 6)
+    # def get_tactile(self):
+    #     frame = self.tacSensor.getFrame()
+    #     pos = frame['3D_Positions']
+    #     displace = frame['3D_Displacements']
+    #     tactile = np.concatenate((pos,displace), axis=1)
+    #     return tactile
+
+    # gelsight 返回2个numpy格式触觉图片
     def get_tactile(self):
-        frame = self.tacSensor.getFrame()
-        pos = frame['3D_Positions']
-        displace = frame['3D_Displacements']
-        tactile = np.concatenate((pos,displace), axis=1)
-        return tactile
+        f1 = self.gs1.get_raw_image()
+        f2 = self.gs2.get_raw_image()
+        return f1, f2
 
     # 返回 (480, 640, 3) 范围[0, 255]
     def get_image(self):
