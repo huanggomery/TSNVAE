@@ -1,7 +1,7 @@
 import os
 import sys
 current_file_path = os.path.dirname(__file__)  # 当前文件所在文件夹路径
-workspace_path = os.path.abspath(os.path.join(current_file_path, "../.."))
+workspace_path = os.path.abspath(os.path.join(current_file_path, ".."))
 sys.path.append(workspace_path)
 
 from torch.utils.data import Dataset
@@ -44,7 +44,7 @@ class MyDataset(Dataset):
             position = position[0].reshape(1,GlobalConfig.latent_dim)
             self.positions = np.concatenate((self.positions, position))
 
-            img_name = path + "/I_z.jpg"
+            img_name = path + "/I_z_left.jpg"
             img = Image.open(img_name)
             img = trans(img).to(device=device)
             self.imgs.append(img)

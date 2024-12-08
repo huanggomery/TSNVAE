@@ -14,12 +14,28 @@ from pred_model.v_data import MyDataset
 
 loss_fn = torch.nn.MSELoss().to(GlobalConfig.device)
 
+def eval(encoder):
+    dataset = MyDataset(mode="test", device=GlobalConfig.device)
+    dataloader = DataLoader(dataset, 1, shuffle=True)
+
+    total_loss = 0
+
+    with torch.no_grad():
+        for img, pos in dataloader:
+            pos1 = encoder(img)["loc"]
+            loss = loss_fn(pos, pos1)
+            total_loss += loss
+
+    return total_loss
+
 def train(encoder, epochs=100):
     params = encoder.parameters()
     optimizer = torch.optim.Adam(params, lr=1e-3)
     
     dataset = MyDataset(device=GlobalConfig.device)
     dataloader = DataLoader(dataset, 32, shuffle=True)
+
+    min_eval_loss = None
 
     for i in range(epochs):
         total_loss = 0
@@ -33,7 +49,15 @@ def train(encoder, epochs=100):
             loss.backward()
             optimizer.step()
 
-        print("Epoch: {} Train loss: {:.6f}".format(i+1, total_loss))
+        # print("Epoch: {} Train loss: {:.6f}".format(i+1, total_loss))
+
+        if (i+1) % 10 == 0:
+            eval_loss = eval(encoder)
+            print("Epoch: {} Eval loss: {:.6f}".format(i+1, eval_loss))
+
+            if min_eval_loss == None or eval_loss < min_eval_loss:
+                min_eval_loss = eval_loss
+                torch.save(encoder.state_dict(), workspace_path+GlobalConfig.save_root+"/v_encoder.pth")
 
 if __name__ == "__main__":
     encoder = VisualEncoder(GlobalConfig.latent_dim).to(GlobalConfig.device)
@@ -43,4 +67,3 @@ if __name__ == "__main__":
     # ))
 
     train(encoder, 100)
-    torch.save(encoder.state_dict(), workspace_path+GlobalConfig.save_root+"/v_encoder.pth")
