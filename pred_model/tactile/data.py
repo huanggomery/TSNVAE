@@ -13,7 +13,7 @@ from PIL import Image
 from config import GlobalConfig
 
 DATA_PATH = "data/gelsight"
-DATA_SIZE = 800
+DATA_SIZE = 600
 
 class MyDataset(Dataset):
     def __init__(self, mode: str = "train", device: str = "cpu"):
@@ -26,7 +26,7 @@ class MyDataset(Dataset):
 
         self.tactile = []
         for i in range(DATA_SIZE):
-            tactile = Image.open(DATA_PATH + "/img_left_{}.jpg".format(i+1))
+            tactile = Image.open(DATA_PATH + "/I_z_left_{}.jpg".format(i+1))
             tactile = trans(tactile).to(device=device)
             self.tactile.append(tactile)
 
