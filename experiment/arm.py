@@ -17,7 +17,7 @@ gelsightID1 = 'GelSight Mini R0B 2G4U-XZM1'
 gelsightID2 = 'GelSight Mini R0B 2G6Z-EA35'
 
 home_pos = [300, 0.0, 10.00, -180.0, 0.0, 0.0]
-usb_pos = [418.48, 4.24, 25]
+usb_pos = [418.48, 4.0, 25]
 velocity_limit = 5  # 随机运动时的速度限制，单位 mm/s
 rotation_limit = 5  # 随机运动时的旋转限制，单位 °/s
 
@@ -49,6 +49,7 @@ class Arm:
         self.gs2 = gsdevice.Camera(gelsightID2)
         self.gs1.connect()
         self.gs2.connect()
+        self.get_tactile()
 
         # # 初始化Tac3d触觉传感器
         # global SN
@@ -63,7 +64,8 @@ class Arm:
     def go_home(self):
         self.arm.set_mode(0)
         self.loose()
-        self.arm.set_position(z=40, relative=False, wait=True)
+        if self.get_pos()[2] < 40:
+            self.arm.set_position(z=40, relative=False, wait=True)
         self.arm.set_position(x=home_pos[0], y=home_pos[1], z=home_pos[2], roll=home_pos[3], pitch=home_pos[4], yaw=home_pos[5],radius=False, wait=True, speed=50)
 
     def loose(self):
@@ -72,7 +74,7 @@ class Arm:
     def grasp(self):
         self.arm.set_gripper_position(110, wait=True)
 
-    def catch_random(self):
+    def catch_random(self, lift=True):
         # 随机的抓取位置误差
         self.x_err = gauss(0, 1.5)
         self.x_err = np.clip(self.x_err, -4, 4)
@@ -91,9 +93,11 @@ class Arm:
 
         # 抓住物体
         self.grasp()
-        # 提起高度随机
-        z = uniform(15, 22)
-        self.arm.set_position(z=z, wait=True, relative=True, speed=5)
+
+        if lift:
+            # 提起高度随机
+            z = uniform(15, 22)
+            self.arm.set_position(z=z, wait=True, relative=True, speed=5)
 
     # 返回动作 [dx, dy] [drx, dry, drz]
     def step_random(self):
