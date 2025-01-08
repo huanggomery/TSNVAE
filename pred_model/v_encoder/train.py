@@ -26,7 +26,7 @@ def eval(encoder):
             loss = loss_fn(pos, pos1)
             total_loss += loss
 
-    return total_loss
+    return total_loss / len(dataset)
 
 def train(encoder, epochs=100):
     params = encoder.parameters()
@@ -49,7 +49,7 @@ def train(encoder, epochs=100):
             loss.backward()
             optimizer.step()
 
-        # print("Epoch: {} Train loss: {:.6f}".format(i+1, total_loss))
+        print("Epoch: {} Train loss: {:.6f}".format(i+1, total_loss/ len(dataset)))
 
         if (i+1) % 10 == 0:
             eval_loss = eval(encoder)
@@ -66,4 +66,4 @@ if __name__ == "__main__":
     #     map_location=torch.device(GlobalConfig.device)
     # ))
 
-    train(encoder, 100)
+    train(encoder, 500)

@@ -167,15 +167,15 @@ class TsNewtonianVAE(Model):
 
     def load_part(self, model_name, path):
         if model_name == "v_encoder":
-            self.v_encoder.load_state_dict(torch.load(path))
+            self.v_encoder.load_state_dict(torch.load(path, map_location=GlobalConfig.device))
         elif model_name == "v_decoder":
-            self.v_decoder.load_state_dict(torch.load(path))
+            self.v_decoder.load_state_dict(torch.load(path, map_location=GlobalConfig.device))
         elif model_name == "t_encoder":
-            self.t_encoder.load_state_dict(torch.load(path))
+            self.t_encoder.load_state_dict(torch.load(path, map_location=GlobalConfig.device))
         elif model_name == "t_decoder":
-            self.t_decoder.load_state_dict(torch.load(path))
+            self.t_decoder.load_state_dict(torch.load(path, map_location=GlobalConfig.device))
         elif model_name == "target_model":
-            self.target_model.load_state_dict(torch.load(path))
+            self.target_model.load_state_dict(torch.load(path, map_location=GlobalConfig.device))
         else:
             raise Exception("no such model: {}".format(model_name))
 
