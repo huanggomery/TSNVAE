@@ -64,15 +64,21 @@ class VTT(nn.Module):
         x = x + self.interpolate_pos_encoding(x, w, h)
         return x
 
-    def forward(self, x, tactile):
+    def forward(self, x, tactile, return_attention: bool = False):
+        attn_list = []
         x = self.prepare_tokens(x, tactile)
         for blk in self.blocks:
-            x = blk(x)
+            x, attn = blk(x, return_attention=True)
+            if return_attention:
+                attn_list.append(attn)
         x = self.norm(x)
         img_tactile = self.compress_patches(x)
         B, patches, dim = img_tactile.size()
         img_tactile = img_tactile.view(B, -1)
         img_tactile = self.compress_layer(img_tactile)
+
+        if return_attention:
+            return self.pos_err_perdiction(img_tactile), self.success_recognition(x[:, 0]), attn_list
         return self.pos_err_perdiction(img_tactile), self.success_recognition(x[:, 0])
 
 
@@ -116,10 +122,11 @@ class Block(nn.Module):
 
     def forward(self, x, return_attention: bool = False):
         y, attn = self.attn(self.norm1(x))
-        if return_attention:
-            return attn
         x = x + self.drop_path(y)
         x = x + self.drop_path(self.mlp(self.norm2(x)))
+
+        if return_attention:
+            return x, attn
         return x
 
 
