@@ -10,6 +10,9 @@ loss_fn = torch.nn.MSELoss().to(device)
 
 
 def train(vtt: VTT, epoch: int, visual: bool = True, tactile: bool = True):
+    if visual ==False and tactile == False:
+        raise Exception("visual and tactile can't be False at the same time")
+
     params = vtt.parameters()
     optimizer = torch.optim.Adam(params, lr=1e-4)
 
@@ -50,7 +53,12 @@ def train(vtt: VTT, epoch: int, visual: bool = True, tactile: bool = True):
 
             if min_eval_loss == None or loss < min_eval_loss:
                 min_eval_loss = loss
-                torch.save(vtt.state_dict(), "save/vtt_no_tactile.pth")
+                if visual and tactile:
+                    torch.save(vtt.state_dict(), "save/vtt.pth")
+                elif visual == False:
+                    torch.save(vtt.state_dict(), "save/vtt_without_visual.pth")
+                else:
+                    torch.save(vtt.state_dict(), "save/vtt_without_tactile.pth")
 
 
 if __name__ == "__main__":
@@ -61,4 +69,4 @@ if __name__ == "__main__":
     #     map_location=torch.device(device)
     # ))
 
-    train(vtt, 100, tactile=False)
+    train(vtt, 100, visual=True, tactile=True)

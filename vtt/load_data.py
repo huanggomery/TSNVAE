@@ -10,7 +10,7 @@ VISUAL_SIZE = 240
 TACTILE_SIZE = 120
 
 # 数据根目录
-DATA_ROOT = "data/cropped"
+DATA_ROOT = "data/vtt/cropped"
 
 DATA_SIZE = 220
 TRAIN_RATIO = 0.9

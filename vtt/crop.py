@@ -4,8 +4,8 @@ import os
 from PIL import Image
 import shutil
 
-ORIGIN_PATH = "data/origin"
-DEST_PATH = "data/cropped"
+ORIGIN_PATH = "data/vtt/origin"
+DEST_PATH = "data/vtt/cropped"
 crop_area = [210, 240, 450, 480]
 S = 8
 
