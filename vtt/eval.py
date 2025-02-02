@@ -5,16 +5,19 @@ import matplotlib.pyplot as plt
 from model import VTT
 from load_data import get_loader
 
-device = "cuda"
+from config import  GlobalConfig
+
+device = GlobalConfig.device
 loss_fn = torch.nn.MSELoss().to(device)
 
 
-def eval(vtt: VTT, visual: bool = True, tactile: bool = True):
+def eval(vtt: VTT, visual: bool = True, tactile: bool = True, return_attention: bool = False):
     dataloader = get_loader("test", device)
 
     ground_truth = np.zeros((0, 2))
     predict = np.zeros((0, 2))
 
+    attention = None
     total_loss = 0
     with torch.no_grad():
         for I, T, label in dataloader:
@@ -22,13 +25,19 @@ def eval(vtt: VTT, visual: bool = True, tactile: bool = True):
                 I = torch.zeros_like(I).to(dtype=torch.float32, device=device)
             if not tactile:
                 T = torch.zeros_like(T).to(dtype=torch.float32, device=device)
-            y, _, attn_list = vtt(I, T, return_attention=True)
+            y, _, attn = vtt(I, T, return_attention=True)
+            if attention is None:
+                attention = attn
+            else:
+                attention = torch.cat((attention, attn))
             loss = loss_fn(label, y)
             total_loss += loss.item()
 
             ground_truth = np.concat((ground_truth, label.cpu().numpy()), axis=0)
             predict = np.concat((predict, y.cpu().numpy()), axis=0)
 
+    if return_attention:
+        return total_loss / len(dataloader.dataset), ground_truth, predict, attention
     return total_loss / len(dataloader.dataset), ground_truth, predict
 
 
@@ -54,7 +63,10 @@ if __name__ == "__main__":
         map_location=torch.device(device)
     ))
 
-    _, ground_truth, predict = eval(vtt)
+    _, ground_truth, predict, attn = eval(vtt, return_attention=True)
+    attn = attn.cpu().numpy()
+    np.save("save/attn.npy", attn)
+
     err = ground_truth - predict
     print('最大误差：', np.max(np.abs(err), axis=0))
     draw(ground_truth, predict)

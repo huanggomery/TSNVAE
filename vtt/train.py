@@ -5,7 +5,9 @@ from model import VTT
 from load_data import get_loader
 from eval import eval
 
-device = "cuda"
+from config import GlobalConfig
+
+device = GlobalConfig.device
 loss_fn = torch.nn.MSELoss().to(device)
 
 

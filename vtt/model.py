@@ -65,12 +65,13 @@ class VTT(nn.Module):
         return x
 
     def forward(self, x, tactile, return_attention: bool = False):
-        attn_list = []
+        attn_layers = []
         x = self.prepare_tokens(x, tactile)
         for blk in self.blocks:
             x, attn = blk(x, return_attention=True)
             if return_attention:
-                attn_list.append(attn)
+                attn_layers.append(attn)
+        attentions = torch.stack(attn_layers, dim=1)
         x = self.norm(x)
         img_tactile = self.compress_patches(x)
         B, patches, dim = img_tactile.size()
@@ -78,7 +79,7 @@ class VTT(nn.Module):
         img_tactile = self.compress_layer(img_tactile)
 
         if return_attention:
-            return self.pos_err_perdiction(img_tactile), self.success_recognition(x[:, 0]), attn_list
+            return self.pos_err_perdiction(img_tactile), self.success_recognition(x[:, 0]), attentions
         return self.pos_err_perdiction(img_tactile), self.success_recognition(x[:, 0])
 
 
