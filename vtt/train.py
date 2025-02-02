@@ -64,11 +64,11 @@ def train(vtt: VTT, epoch: int, visual: bool = True, tactile: bool = True):
 
 
 if __name__ == "__main__":
-    vtt = VTT(img_size=[240], img_patch_size=80, tactile_size=[120], tactile_patch_size=60,
-              sequence=8, in_chans=3, embed_dim=512).to(device=device)
+    vtt = VTT(img_size=[240], img_patch_size=48, tactile_size=[120], tactile_patch_size=40,
+              depth=2, num_heads=4, sequence=8, in_chans=3, embed_dim=256).to(device=device)
     # vtt.load_state_dict(torch.load(
     #     "save/vtt.pth",
     #     map_location=torch.device(device)
     # ))
 
-    train(vtt, 100, visual=True, tactile=True)
+    train(vtt, 150, visual=True, tactile=True)

@@ -56,12 +56,13 @@ def draw(ground_truth, predict):
 
 
 if __name__ == "__main__":
-    vtt = VTT(img_size=[240], img_patch_size=80, tactile_size=[120], tactile_patch_size=60,
-              sequence=8, in_chans=3, embed_dim=512).to(device=device)
+    vtt = VTT(img_size=[240], img_patch_size=48, tactile_size=[120], tactile_patch_size=40,
+              depth=2, num_heads=4, sequence=8, in_chans=3, embed_dim=256).to(device=device)
     vtt.load_state_dict(torch.load(
         "save/vtt.pth",
         map_location=torch.device(device)
     ))
+    vtt.eval()
 
     _, ground_truth, predict, attn = eval(vtt, return_attention=True)
     attn = attn.cpu().numpy()
